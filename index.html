@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relationship Quiz</title>
+    <meta property="og:title" content="Relationship Personality Quiz" />
+    <meta property="og:description" content="Discover your relationship personality type and get personalized advice!" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://your-domain.com/relationship-quiz" />
+    <meta property="og:image" content="https://your-domain.com/quiz-preview.jpg" />
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <div class="container">
+        <div id="welcome-screen" class="screen active">
+            <h1>Relationship Personality Quiz</h1>
+            <p>Discover insights about your relationship style and get personalized advice!</p>
+            <button id="start-btn" class="btn">Start Quiz</button>
+        </div>
+
+        <div id="quiz-screen" class="screen">
+            <div id="question-container">
+                <h2 id="question-text"></h2>
+                <div id="options-container"></div>
+            </div>
+            <div id="progress-bar">
+                <div id="progress"></div>
+            </div>
+        </div>
+
+        <div id="payment-screen" class="screen">
+            <h2>Quiz Complete!</h2>
+            <p>To view your personalized results and advice, please complete the payment.</p>
+            <div id="payment-form-container">
+                <form id="payment-form">
+                    <div id="payment-element"></div>
+                    <button id="submit-payment" class="btn">Pay $1.00 USD</button>
+                    <div id="payment-message"></div>
+                </form>
+            </div>
+        </div>
+
+        <div id="results-screen" class="screen">
+            <h2>Your Relationship Personality Results</h2>
+            <div id="personality-result"></div>
+            <h3>Personality Insights</h3>
+            <ul id="personality-advice"></ul>
+            <h3>Relationship Improvement Tips</h3>
+            <ul id="relationship-advice"></ul>
+            <button id="restart-btn" class="btn">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script src="quiz.js"></script>
+    <script src="payment.js"></script>
+    <script src="facebook-integration.js"></script>
+</body>
+</html>
