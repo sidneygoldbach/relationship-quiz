@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { QUIZ_PRICE } = require('./config');
+const db = require('./database');
 
 // Check for required environment variables
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -32,6 +33,11 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
+// Serve admin dashboard
+app.get('/admin', (req, res) => {
+    res.sendFile(__dirname + '/admin.html');
+});
+
 // Stripe configuration endpoint
 app.get('/stripe-config', (req, res) => {
     try {
@@ -48,19 +54,40 @@ app.get('/stripe-config', (req, res) => {
 // Create a payment intent
 app.post('/create-payment-intent', async (req, res) => {
     try {
-        console.log('Creating payment intent...');
+        const { sessionId } = req.body;
+        console.log('Creating payment intent for session:', sessionId);
         
         // Create a PaymentIntent with the amount, currency, and description
         const paymentIntent = await stripe.paymentIntents.create({
             amount: QUIZ_PRICE.cents, // Amount in cents from config
             currency: QUIZ_PRICE.currency.toLowerCase(),
             description: 'Relationship Quiz Results',
+            metadata: {
+                sessionId: sessionId || 'unknown'
+            },
             automatic_payment_methods: {
                 enabled: true,
             },
         });
 
         console.log('Payment intent created successfully:', paymentIntent.id);
+        
+        // Save payment record to database
+        if (sessionId) {
+            try {
+                await db.savePayment(
+                    sessionId,
+                    paymentIntent.id,
+                    QUIZ_PRICE.cents,
+                    QUIZ_PRICE.currency.toLowerCase(),
+                    'pending'
+                );
+                console.log('Payment record saved to database');
+            } catch (dbError) {
+                console.error('Error saving payment to database:', dbError);
+                // Continue anyway - payment intent was created successfully
+            }
+        }
         
         // Send the client secret to the client
         res.json({
@@ -69,6 +96,86 @@ app.post('/create-payment-intent', async (req, res) => {
     } catch (error) {
         console.error('❌ Error creating payment intent:', error);
         res.status(500).json({ error: error.message });
+    }
+});
+
+// Save quiz results
+app.post('/save-quiz-result', async (req, res) => {
+    try {
+        const { sessionId, email, answers, resultType } = req.body;
+        
+        if (!sessionId) {
+            return res.status(400).json({ error: 'Session ID is required' });
+        }
+        
+        console.log('Saving quiz result for session:', sessionId);
+        
+        const savedSession = await db.saveQuizSession(sessionId, email, answers, resultType);
+        
+        res.json({ 
+            success: true, 
+            sessionId: savedSession.session_id,
+            id: savedSession.id 
+        });
+    } catch (error) {
+        console.error('Error saving quiz result:', error);
+        res.status(500).json({ error: 'Failed to save quiz result' });
+    }
+});
+
+// Get quiz results
+app.get('/quiz-results/:sessionId', async (req, res) => {
+    try {
+        const { sessionId } = req.params;
+        
+        console.log('Retrieving quiz result for session:', sessionId);
+        
+        const session = await db.getQuizSession(sessionId);
+        
+        if (!session) {
+            return res.status(404).json({ error: 'Quiz session not found' });
+        }
+        
+        // Parse JSON answers if they exist
+        if (session.quiz_answers && typeof session.quiz_answers === 'string') {
+            session.quiz_answers = JSON.parse(session.quiz_answers);
+        }
+        
+        res.json(session);
+    } catch (error) {
+        console.error('Error retrieving quiz result:', error);
+        res.status(500).json({ error: 'Failed to retrieve quiz result' });
+    }
+});
+
+// Get payment status
+app.get('/payment-status/:sessionId', async (req, res) => {
+    try {
+        const { sessionId } = req.params;
+        
+        console.log('Checking payment status for session:', sessionId);
+        
+        const payment = await db.getPaymentBySessionId(sessionId);
+        const session = await db.getQuizSession(sessionId);
+        
+        res.json({
+            paymentStatus: session?.payment_status || 'pending',
+            paymentDetails: payment || null
+        });
+    } catch (error) {
+        console.error('Error checking payment status:', error);
+        res.status(500).json({ error: 'Failed to check payment status' });
+    }
+});
+
+// Get quiz statistics (admin endpoint)
+app.get('/admin/stats', async (req, res) => {
+    try {
+        const stats = await db.getQuizStats();
+        res.json(stats);
+    } catch (error) {
+        console.error('Error getting quiz stats:', error);
+        res.status(500).json({ error: 'Failed to get quiz statistics' });
     }
 });
 
@@ -94,13 +201,57 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
         case 'payment_intent.succeeded':
             const paymentIntent = event.data.object;
             console.log('PaymentIntent was successful:', paymentIntent.id);
-            // Here you would update your database to mark the user as paid
+            
+            try {
+                // Update payment status in database
+                await db.updatePaymentStatus(paymentIntent.id, 'succeeded');
+                
+                // Update quiz session payment status
+                const sessionId = paymentIntent.metadata?.sessionId;
+                if (sessionId) {
+                    await db.updateQuizSessionPaymentStatus(sessionId, 'completed');
+                    console.log(`Payment completed for session: ${sessionId}`);
+                }
+            } catch (dbError) {
+                console.error('Error updating payment status in database:', dbError);
+            }
             break;
+            
         case 'payment_intent.payment_failed':
             const failedPaymentIntent = event.data.object;
             console.log('Payment failed:', failedPaymentIntent.id);
-            // Here you would handle the failed payment
+            
+            try {
+                // Update payment status in database
+                await db.updatePaymentStatus(failedPaymentIntent.id, 'failed');
+                
+                // Update quiz session payment status
+                const sessionId = failedPaymentIntent.metadata?.sessionId;
+                if (sessionId) {
+                    await db.updateQuizSessionPaymentStatus(sessionId, 'failed');
+                    console.log(`Payment failed for session: ${sessionId}`);
+                }
+            } catch (dbError) {
+                console.error('Error updating failed payment status in database:', dbError);
+            }
             break;
+            
+        case 'payment_intent.canceled':
+            const canceledPaymentIntent = event.data.object;
+            console.log('Payment was canceled:', canceledPaymentIntent.id);
+            
+            try {
+                await db.updatePaymentStatus(canceledPaymentIntent.id, 'canceled');
+                
+                const sessionId = canceledPaymentIntent.metadata?.sessionId;
+                if (sessionId) {
+                    await db.updateQuizSessionPaymentStatus(sessionId, 'canceled');
+                }
+            } catch (dbError) {
+                console.error('Error updating canceled payment status in database:', dbError);
+            }
+            break;
+            
         default:
             console.log(`Unhandled event type ${event.type}`);
     }
@@ -109,8 +260,25 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
     res.send();
 });
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Open http://localhost:${PORT} in your browser`);
-});
+// Initialize database and start the server
+const startServer = async () => {
+    try {
+        // Initialize database tables
+        await db.initializeDatabase();
+        console.log('✅ Database initialized successfully');
+        
+        // Start the server
+        app.listen(PORT, () => {
+            console.log(`🚀 Server running on port ${PORT}`);
+            console.log(`🌐 Open http://localhost:${PORT} in your browser`);
+            console.log('📊 Admin stats available at: http://localhost:' + PORT + '/admin/stats');
+        });
+    } catch (error) {
+        console.error('❌ Failed to start server:', error);
+        console.error('Make sure PostgreSQL is running and database credentials are correct');
+        process.exit(1);
+    }
+};
+
+// Start the application
+startServer();

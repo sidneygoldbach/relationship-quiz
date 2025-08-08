@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .recent-activity {
+            margin: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+        }
+
+        .recent-activity h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .activity-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Quiz Admin Dashboard</h1>
+            <p>Monitor your relationship quiz performance and analytics</p>
+            <button class="refresh-btn" onclick="loadStats()">🔄 Refresh Data</button>
+        </div>
+
+        <div id="loading" class="loading">
+            <h3>📊 Loading statistics...</h3>
+        </div>
+
+        <div id="error" class="error" style="display: none;">
+            <h3>❌ Error loading data</h3>
+            <p>Make sure the server is running and the database is connected.</p>
+        </div>
+
+        <div id="stats-container" style="display: none;">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>📝 Total Quiz Sessions</h3>
+                    <div class="stat-value" id="total-sessions">-</div>
+                    <div class="stat-label">All time</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>💳 Paid Sessions</h3>
+                    <div class="stat-value" id="paid-sessions">-</div>
+                    <div class="stat-label">Completed payments</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>💰 Total Revenue</h3>
+                    <div class="stat-value" id="total-revenue">$-</div>
+                    <div class="stat-label">Gross earnings</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>📈 Recent Sessions</h3>
+                    <div class="stat-value" id="recent-sessions">-</div>
+                    <div class="stat-label">Last 24 hours</div>
+                </div>
+            </div>
+
+            <div class="recent-activity">
+                <h3>📋 Database Status</h3>
+                <div class="activity-item">
+                    <span>Database Connection</span>
+                    <span class="status-badge status-completed" id="db-status">✅ Connected</span>
+                </div>
+                <div class="activity-item">
+                    <span>Last Updated</span>
+                    <span id="last-updated">-</span>
+                </div>
+                <div class="activity-item">
+                    <span>Conversion Rate</span>
+                    <span id="conversion-rate">-%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadStats() {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const container = document.getElementById('stats-container');
+            
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            container.style.display = 'none';
+
+            try {
+                const response = await fetch('/admin/stats');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const stats = await response.json();
+                
+                // Update statistics
+                document.getElementById('total-sessions').textContent = stats.totalSessions?.count || '0';
+                document.getElementById('paid-sessions').textContent = stats.paidSessions?.count || '0';
+                
+                // Format revenue
+                const revenue = stats.totalRevenue?.total || 0;
+                document.getElementById('total-revenue').textContent = `$${(revenue / 100).toFixed(2)}`;
+                
+                document.getElementById('recent-sessions').textContent = stats.recentSessions?.count || '0';
+                
+                // Calculate conversion rate
+                const totalSessions = parseInt(stats.totalSessions?.count || 0);
+                const paidSessions = parseInt(stats.paidSessions?.count || 0);
+                const conversionRate = totalSessions > 0 ? ((paidSessions / totalSessions) * 100).toFixed(1) : '0';
+                document.getElementById('conversion-rate').textContent = `${conversionRate}%`;
+                
+                // Update last updated time
+                document.getElementById('last-updated').textContent = new Date().toLocaleString();
+                
+                loading.style.display = 'none';
+                container.style.display = 'block';
+                
+            } catch (err) {
+                console.error('Error loading stats:', err);
+                loading.style.display = 'none';
+                error.style.display = 'block';
+                
+                // Update database status
+                const dbStatus = document.getElementById('db-status');
+                if (dbStatus) {
+                    dbStatus.textContent = '❌ Disconnected';
+                    dbStatus.className = 'status-badge status-failed';
+                }
+            }
+        }
+
+        // Load stats when page loads
+        document.addEventListener('DOMContentLoaded', loadStats);
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadStats, 30000);
+    </script>
+</body>
+</html>
