@@ -3,10 +3,10 @@
 
 // Quiz pricing configuration
 const QUIZ_PRICE = {
-    cents: 2,        // Amount in cents (Stripe format)
-    dollars: 0.02,     // Amount in dollars (display format)
+    cents: 50,        // Amount in cents (Stripe format)
+    dollars: 0.50,     // Amount in dollars (display format)
     currency: 'USD',   // Currency code
-    displayText: 'Pay $0.02 USD'  // Complete display text for buttons
+    displayText: 'Pay $0.50 USD'  // Complete display text for buttons
 };
 
 // Export for Node.js (server-side)
