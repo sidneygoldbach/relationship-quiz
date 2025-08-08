@@ -1,6 +1,16 @@
 // Simple Express server for handling Stripe payments
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+
+// Check for required environment variables
+if (!process.env.STRIPE_SECRET_KEY) {
+    console.warn('⚠️  STRIPE_SECRET_KEY not found in environment variables. Using test key.');
+}
+if (!process.env.STRIPE_PUBLISHABLE_KEY) {
+    console.warn('⚠️  STRIPE_PUBLISHABLE_KEY not found in environment variables.');
+}
+
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'sk_test_your_test_key_here'); // Use environment variable for Stripe secret key
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,14 +20,35 @@ app.use(express.static('.'));
 app.use(express.json());
 app.use(cors());
 
+// Request logging middleware
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    next();
+});
+
 // Serve the static files
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
+// Stripe configuration endpoint
+app.get('/stripe-config', (req, res) => {
+    try {
+        const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_your_test_key_here';
+        res.json({
+            publishableKey: publishableKey
+        });
+    } catch (error) {
+        console.error('Error getting Stripe config:', error);
+        res.status(500).json({ error: 'Failed to get Stripe configuration' });
+    }
+});
+
 // Create a payment intent
 app.post('/create-payment-intent', async (req, res) => {
     try {
+        console.log('Creating payment intent...');
+        
         // Create a PaymentIntent with the amount, currency, and description
         const paymentIntent = await stripe.paymentIntents.create({
             amount: 100, // Amount in cents (100 cents = $1.00)
@@ -28,12 +59,14 @@ app.post('/create-payment-intent', async (req, res) => {
             },
         });
 
+        console.log('Payment intent created successfully:', paymentIntent.id);
+        
         // Send the client secret to the client
         res.json({
             clientSecret: paymentIntent.client_secret,
         });
     } catch (error) {
-        console.error('Error creating payment intent:', error);
+        console.error('❌ Error creating payment intent:', error);
         res.status(500).json({ error: error.message });
     }
 });

@@ -4,11 +4,15 @@ let elements;
 let paymentIntentId;
 
 // Initialize Stripe elements when the payment screen is shown
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Stripe with your publishable key
-    // Note: In a real application, you would get this key from your server
-    // This is a placeholder and needs to be replaced with a real Stripe publishable key
-    initializeStripe('pk_test_your_stripe_publishable_key_here');
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Get Stripe publishable key from server
+        const publishableKey = await getStripePublishableKey();
+        initializeStripe(publishableKey);
+    } catch (error) {
+        console.error('Failed to initialize Stripe:', error);
+        showPaymentMessage('Failed to initialize payment system. Please refresh the page.');
+    }
 });
 
 // Initialize Stripe with the publishable key
@@ -59,6 +63,21 @@ async function createPaymentForm() {
     } catch (error) {
         showPaymentMessage('Failed to load payment form. Please try again.');
         console.error('Payment form creation error:', error);
+    }
+}
+
+// Get Stripe publishable key from server
+async function getStripePublishableKey() {
+    try {
+        const response = await fetch('/stripe-config');
+        if (!response.ok) {
+            throw new Error('Failed to get Stripe configuration');
+        }
+        const config = await response.json();
+        return config.publishableKey;
+    } catch (error) {
+        console.error('Error getting Stripe config:', error);
+        throw error;
     }
 }
 
