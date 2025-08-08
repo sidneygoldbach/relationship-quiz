@@ -136,7 +136,7 @@ async function handlePaymentSubmission(e) {
         console.error('Payment error:', error);
     } finally {
         submitButton.disabled = false;
-        submitButton.textContent = 'Pay $1.00 USD';
+        submitButton.textContent = window.QUIZ_PRICE ? window.QUIZ_PRICE.displayText : 'Pay $1.00 USD';
     }
 }
 

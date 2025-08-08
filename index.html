@@ -36,7 +36,7 @@
             <div id="payment-form-container">
                 <form id="payment-form">
                     <div id="payment-element"></div>
-                    <button id="submit-payment" class="btn">Pay $1.00 USD</button>
+                    <button id="submit-payment" class="btn"></button>
                     <div id="payment-message"></div>
                 </form>
             </div>
@@ -53,8 +53,18 @@
         </div>
     </div>
 
+    <script src="config.js"></script>
     <script src="quiz.js"></script>
     <script src="payment.js"></script>
     <script src="facebook-integration.js"></script>
+    <script>
+        // Set button text from global config
+        document.addEventListener('DOMContentLoaded', function() {
+            const submitButton = document.getElementById('submit-payment');
+            if (submitButton && window.QUIZ_PRICE) {
+                submitButton.textContent = window.QUIZ_PRICE.displayText;
+            }
+        });
+    </script>
 </body>
 </html>

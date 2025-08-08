@@ -2,6 +2,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const { QUIZ_PRICE } = require('./config');
 
 // Check for required environment variables
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -51,8 +52,8 @@ app.post('/create-payment-intent', async (req, res) => {
         
         // Create a PaymentIntent with the amount, currency, and description
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: 100, // Amount in cents (100 cents = $1.00)
-            currency: 'usd',
+            amount: QUIZ_PRICE.cents, // Amount in cents from config
+            currency: QUIZ_PRICE.currency.toLowerCase(),
             description: 'Relationship Quiz Results',
             automatic_payment_methods: {
                 enabled: true,
