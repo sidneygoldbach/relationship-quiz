@@ -35,8 +35,16 @@ echo "\n📦 4. Verificando dependências..."
 npm install --production
 echo "✅ Dependências verificadas"
 
-# 5. Aplicar correções no banco de dados
-echo "\n🔧 5. Aplicando correções no banco de dados..."
+# 5. Configurar serviço systemd
+echo "\n⚙️ 5. Configurando serviço systemd..."
+# Copiar arquivo de serviço para systemd
+sudo cp relationship-quiz.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable relationship-quiz
+echo "✅ Serviço systemd configurado"
+
+# 6. Aplicar correções no banco de dados
+echo "\n🔧 6. Aplicando correções no banco de dados..."
 
 # Executar script de correção de opções duplicadas
 echo "Executando correção de opções duplicadas..."
@@ -49,14 +57,14 @@ node final-verification.js
 
 echo "✅ Correções aplicadas com sucesso"
 
-# 6. Reiniciar serviços
-echo "\n🔄 6. Reiniciando serviços..."
+# 7. Reiniciar serviços
+echo "\n🔄 7. Reiniciando serviços..."
 sudo systemctl start relationship-quiz
 sudo systemctl enable relationship-quiz
 echo "✅ Serviços reiniciados"
 
-# 7. Verificar status
-echo "\n🔍 7. Verificando status dos serviços..."
+# 8. Verificar status
+echo "\n🔍 8. Verificando status dos serviços..."
 sudo systemctl status relationship-quiz --no-pager
 
 # 8. Teste rápido
