@@ -91,33 +91,30 @@ PORT=3000
 
 ### **8. Executar Migrações do Banco de Dados**
 
-**IMPORTANTE:** Se você encontrou erro de foreign key constraint durante a migração, use o script de correção:
+**RECOMENDADO**: Para resolver todos os problemas de uma vez, use o script de correção completa:
 
 ```bash
-# Se houve erro na migração original, execute este script de correção:
-node fix-kamatera-migration.js
+# Script que resolve todos os problemas automaticamente:
+node fix-kamatera-complete.js
 ```
 
-**OU** se não houve erros, execute estes scripts na ordem correta:
+**OU** se preferir executar individualmente:
 
 ```bash
-# 1. Adicionar colunas country às tabelas existentes
-node add_country_columns.js
+# Se houve erro de foreign key constraint:
+node fix-kamatera-migration.js
 
-# 2. Migrar traduções dos arquivos JSON para o banco
-node migrate_translations.js
-
-# 3. Migrar dados do quiz para o novo formato
-node migrate-quiz-data.js
-
-# 4. Adicionar opções de resposta em português
+# OU se não houve erros, execute na ordem:
 node add-portuguese-options.js
-
-# 5. Adicionar tipos de personalidade em português
-node add-portuguese-personality-types.js
-
-# 6. Corrigir chaves dos tipos de personalidade
 node fix-personality-keys.js
+node migrate_translations.js
+```
+
+**Para diagnosticar problemas específicos:**
+
+```bash
+# Para verificar se as opções estão aparecendo:
+node diagnose-kamatera-options.js
 ```
 
 ### **9. Verificar Estrutura do Banco de Dados**
