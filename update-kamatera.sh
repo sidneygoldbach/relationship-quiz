@@ -21,7 +21,7 @@ source .env
 # 2. Fazer backup do banco de dados
 echo "\n📦 2. Fazendo backup do banco de dados..."
 DATE=$(date +"%Y%m%d_%H%M%S")
-BACKUP_FILE="relationship_quiz_backup_${DATE}.sql"
+BACKUP_FILE="quiz_app_backup_${DATE}.sql"
 
 # Backup PostgreSQL
 echo "Criando backup: $BACKUP_FILE"

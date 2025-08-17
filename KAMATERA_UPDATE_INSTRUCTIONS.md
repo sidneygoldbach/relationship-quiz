@@ -107,10 +107,10 @@ sudo netstat -tlnp | grep :3000
 ### Se Houver Erro no Banco de Dados
 ```bash
 # Verificar conexão com PostgreSQL
-psql -h localhost -U relationship_quiz_user -d relationship_quiz -c "\dt"
+psql -h localhost -U quiz_user -d quiz_app -c "\dt"
 
 # Restaurar backup se necessário (substitua YYYYMMDD_HHMMSS pela data do backup)
-psql -h localhost -U relationship_quiz_user -d relationship_quiz < relationship_quiz_backup_YYYYMMDD_HHMMSS.sql
+psql -h localhost -U quiz_user -d quiz_app < quiz_app_backup_YYYYMMDD_HHMMSS.sql
 ```
 
 ### Rollback (Se Necessário)
@@ -120,7 +120,7 @@ git log --oneline -5  # Ver últimos commits
 git reset --hard COMMIT_HASH_ANTERIOR
 
 # Restaurar backup do banco
-psql -h localhost -U relationship_quiz_user -d relationship_quiz < relationship_quiz_backup_YYYYMMDD_HHMMSS.sql
+psql -h localhost -U quiz_user -d quiz_app < quiz_app_backup_YYYYMMDD_HHMMSS.sql
 
 # Reiniciar serviços
 sudo systemctl restart relationship-quiz
