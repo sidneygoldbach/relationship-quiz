@@ -8,43 +8,58 @@ set -e  # Parar em caso de erro
 echo "🚀 Iniciando atualização do servidor Kamatera..."
 echo "================================================"
 
-# 1. Fazer backup do banco de dados
-echo "\n📦 1. Fazendo backup do banco de dados..."
+# 1. Verificar configuração do banco de dados
+echo "\n🔍 1. Verificando configuração do banco de dados..."
+if [ ! -f ".env" ]; then
+    echo "❌ Arquivo .env não encontrado. Execute ./fix-postgres-auth.sh primeiro"
+    exit 1
+fi
+
+# Carregar variáveis do .env
+source .env
+
+# 2. Fazer backup do banco de dados
+echo "\n📦 2. Fazendo backup do banco de dados..."
 DATE=$(date +"%Y%m%d_%H%M%S")
 BACKUP_FILE="relationship_quiz_backup_${DATE}.sql"
 
 # Backup PostgreSQL
 echo "Criando backup: $BACKUP_FILE"
-pg_dump -h localhost -U relationship_quiz_user -d relationship_quiz > "$BACKUP_FILE"
-echo "✅ Backup criado com sucesso: $BACKUP_FILE"
+PGPASSWORD="$DB_PASSWORD" pg_dump -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" > "$BACKUP_FILE"
+if [ $? -eq 0 ]; then
+    echo "✅ Backup criado com sucesso: $BACKUP_FILE"
+else
+    echo "❌ Erro ao criar backup. Execute ./fix-postgres-auth.sh para corrigir"
+    echo "Continuando mesmo assim..."
+fi
 
-# 2. Parar os serviços
-echo "\n🛑 2. Parando serviços..."
+# 3. Parar os serviços
+echo "\n🛑 3. Parando serviços..."
 sudo systemctl stop relationship-quiz
 echo "✅ Serviço relationship-quiz parado"
 
-# 3. Atualizar código do GitHub
-echo "\n📥 3. Atualizando código do GitHub..."
+# 4. Atualizar código do GitHub
+echo "\n📥 4. Atualizando código do GitHub..."
 cd /var/www/relationship-quiz
 git fetch origin
 git reset --hard origin/main
 echo "✅ Código atualizado com sucesso"
 
-# 4. Instalar dependências (se houver novas)
-echo "\n📦 4. Verificando dependências..."
+# 5. Instalar dependências (se houver novas)
+echo "\n📦 5. Verificando dependências..."
 npm install --production
 echo "✅ Dependências verificadas"
 
-# 5. Configurar serviço systemd
-echo "\n⚙️ 5. Configurando serviço systemd..."
+# 6. Configurar serviço systemd
+echo "\n⚙️ 6. Configurando serviço systemd..."
 # Copiar arquivo de serviço para systemd
 sudo cp relationship-quiz.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable relationship-quiz
 echo "✅ Serviço systemd configurado"
 
-# 6. Aplicar correções no banco de dados
-echo "\n🔧 6. Aplicando correções no banco de dados..."
+# 7. Aplicar correções no banco de dados
+echo "\n🔧 7. Aplicando correções no banco de dados..."
 
 # Executar script de correção de opções duplicadas
 echo "Executando correção de opções duplicadas..."
@@ -57,18 +72,18 @@ node final-verification.js
 
 echo "✅ Correções aplicadas com sucesso"
 
-# 7. Reiniciar serviços
-echo "\n🔄 7. Reiniciando serviços..."
+# 8. Reiniciar serviços
+echo "\n🔄 8. Reiniciando serviços..."
 sudo systemctl start relationship-quiz
 sudo systemctl enable relationship-quiz
 echo "✅ Serviços reiniciados"
 
-# 8. Verificar status
-echo "\n🔍 8. Verificando status dos serviços..."
+# 9. Verificar status
+echo "\n🔍 9. Verificando status dos serviços..."
 sudo systemctl status relationship-quiz --no-pager
 
-# 8. Teste rápido
-echo "\n🧪 8. Testando aplicação..."
+# 10. Teste rápido
+echo "\n🧪 10. Testando aplicação..."
 sleep 5
 HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 || echo "000")
 
