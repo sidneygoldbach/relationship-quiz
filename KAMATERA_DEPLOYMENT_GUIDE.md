@@ -98,6 +98,14 @@ PORT=3000
 node fix-kamatera-complete.js
 ```
 
+Este script executa automaticamente:
+1. Criação do quiz padrão (se necessário)
+2. Adição de opções em português
+3. Correção de chaves de personalidade
+4. **Adição de advice em português** (NOVO)
+5. Execução de migrações de tradução
+6. Verificação final dos dados
+
 **OU** se preferir executar individualmente:
 
 ```bash
@@ -107,6 +115,7 @@ node fix-kamatera-migration.js
 # OU se não houve erros, execute na ordem:
 node add-portuguese-options.js
 node fix-personality-keys.js
+node add-portuguese-advice.js
 node migrate_translations.js
 ```
 
@@ -115,6 +124,9 @@ node migrate_translations.js
 ```bash
 # Para verificar se as opções estão aparecendo:
 node diagnose-kamatera-options.js
+
+# Para verificar advice em português (NOVO):
+node diagnose-kamatera-advice.js
 ```
 
 ### **9. Verificar Estrutura do Banco de Dados**
@@ -187,6 +199,32 @@ node fix-kamatera-migration.js
 ```
 
 Este script criará o quiz padrão necessário e executará a migração corretamente.
+
+### **Problema: Opções não aparecem na primeira tela**
+
+**Sintoma**: As opções de resposta não são exibidas quando o quiz é carregado.
+
+**Causa**: Falta de opções em português no banco de dados.
+
+**Solução**:
+```bash
+node diagnose-kamatera-options.js  # Para diagnosticar
+node add-portuguese-options.js     # Para corrigir
+```
+
+### **Problema: Resultado final incompleto (NOVO)**
+
+**Sintoma**: Na tela de resultados, as seções "Insights de Personalidade" e "Dicas para Melhorar Relacionamentos" aparecem vazias.
+
+**Causa**: Falta de dados de advice (conselhos) em português no banco de dados.
+
+**Solução**:
+```bash
+node diagnose-kamatera-advice.js   # Para diagnosticar
+node add-portuguese-advice.js      # Para corrigir
+```
+
+**Verificação**: Após executar o script, recarregue a página de resultados. As seções devem mostrar 5 itens cada uma.
 
 ### **Verificar Logs**
 ```bash

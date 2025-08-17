@@ -74,7 +74,18 @@ async function fixKamateraComplete() {
       console.log('Continuando com próximos passos...');
     }
     
-    // 4. Executar migração de traduções
+    // 4. Executar adição de advice em português
+    console.log('\n💡 Adicionando advice em português...');
+    try {
+      const { execSync } = require('child_process');
+      execSync('node add-portuguese-advice.js', { stdio: 'inherit' });
+      console.log('✅ Advice em português adicionado!');
+    } catch (error) {
+      console.log('⚠️  Erro ao adicionar advice em português:', error.message);
+      console.log('Continuando com próximos passos...');
+    }
+    
+    // 5. Executar migração de traduções
     console.log('\n🌐 Executando migração de traduções...');
     try {
       const { migrateTranslations } = require('./migrate_translations.js');
