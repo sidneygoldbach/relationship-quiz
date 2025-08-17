@@ -1,145 +1,57 @@
-// Quiz questions and options
-const quizQuestions = [
-    {
-        question: "How do you typically handle conflicts in relationships?",
-        options: [
-            "I prefer to address issues immediately and directly.",
-            "I need time to process before discussing the problem.",
-            "I try to find a compromise that works for everyone.",
-            "I sometimes avoid confrontation to keep the peace."
-        ]
-    },
-    {
-        question: "What's most important to you in a relationship?",
-        options: [
-            "Open and honest communication.",
-            "Trust and loyalty.",
-            "Emotional support and understanding.",
-            "Growth and shared experiences."
-        ]
-    },
-    {
-        question: "How do you express affection to your partner?",
-        options: [
-            "Through physical touch and closeness.",
-            "By giving gifts or doing thoughtful acts of service.",
-            "With words of affirmation and compliments.",
-            "By spending quality time together."
-        ]
-    },
-    {
-        question: "When making important decisions with a partner, you prefer to:",
-        options: [
-            "Take the lead and make decisions confidently.",
-            "Discuss all options thoroughly before deciding together.",
-            "Consider your partner's needs first.",
-            "Be flexible and go with the flow."
-        ]
-    },
-    {
-        question: "How do you react when you feel emotionally hurt by someone close to you?",
-        options: [
-            "Express my feelings immediately and directly.",
-            "Withdraw and process my emotions privately.",
-            "Try to understand their perspective before reacting.",
-            "Tend to forgive quickly and move forward."
-        ]
-    }
-];
+// Quiz data - loaded from API
+let quizQuestions = [];
+let quizMetadata = {};
+let personalityTypes = [];
+const QUIZ_ID = 1; // Default quiz ID
 
-// Personality types based on answers
-const personalityTypes = [
-    {
-        type: "The Communicator",
-        description: "You value open and honest communication in relationships. You're direct about your needs and feelings, which helps prevent misunderstandings.",
-        personalityAdvice: [
-            "Practice active listening as much as you practice speaking.",
-            "Remember that not everyone communicates as directly as you do.",
-            "Balance honesty with tactfulness to avoid hurting others.",
-            "Recognize when others need processing time before discussions.",
-            "Your clarity is a strength that builds trust in relationships."
-        ],
-        relationshipAdvice: [
-            "Create regular check-ins with partners to maintain open communication.",
-            "When conflicts arise, focus on understanding before being understood.",
-            "Validate others' feelings even when they differ from your perspective.",
-            "Use 'I' statements rather than 'you' statements during difficult conversations.",
-            "Appreciate different communication styles in your relationships."
-        ]
-    },
-    {
-        type: "The Nurturer",
-        description: "You prioritize emotional support and understanding in relationships. Your empathetic nature makes others feel safe and valued.",
-        personalityAdvice: [
-            "Set healthy boundaries to avoid emotional burnout.",
-            "Make self-care a priority alongside caring for others.",
-            "Recognize when you're taking on others' emotional burdens.",
-            "Allow yourself to receive support, not just give it.",
-            "Your empathy is a gift that strengthens connections."
-        ],
-        relationshipAdvice: [
-            "Communicate your own needs clearly rather than just focusing on others.",
-            "Seek balance between giving and receiving in relationships.",
-            "Find partners who appreciate your nurturing nature without taking advantage.",
-            "Practice saying 'no' when necessary without feeling guilty.",
-            "Build a support network beyond your primary relationship."
-        ]
-    },
-    {
-        type: "The Harmonizer",
-        description: "You seek peace and balance in relationships. You're adaptable and willing to compromise to maintain harmony.",
-        personalityAdvice: [
-            "Recognize that some conflict is healthy and necessary.",
-            "Stand firm on your core values even when it creates tension.",
-            "Distinguish between healthy compromise and self-sacrifice.",
-            "Practice expressing disagreement in constructive ways.",
-            "Your flexibility is an asset in navigating relationship challenges."
-        ],
-        relationshipAdvice: [
-            "Ensure your desire for harmony doesn't silence your authentic voice.",
-            "Set clear expectations about your needs and boundaries.",
-            "Look for partners who value compromise as much as you do.",
-            "Address small issues before they become major problems.",
-            "Celebrate the strength in your adaptability and peacemaking skills."
-        ]
-    },
-    {
-        type: "The Independent",
-        description: "You value autonomy and personal growth in relationships. You bring a strong sense of self and clear boundaries to your connections.",
-        personalityAdvice: [
-            "Balance independence with vulnerability for deeper connections.",
-            "Share your internal process with trusted others.",
-            "Recognize when self-reliance becomes a barrier to intimacy.",
-            "Practice asking for help when needed.",
-            "Your self-sufficiency is a strength that brings stability to relationships."
-        ],
-        relationshipAdvice: [
-            "Communicate your need for space proactively, not reactively.",
-            "Create rituals of connection to balance your independence.",
-            "Look for partners who respect your autonomy without feeling threatened.",
-            "Invest in interdependence alongside independence.",
-            "Share your growth journey with those closest to you."
-        ]
-    },
-    {
-        type: "The Loyalist",
-        description: "You prioritize trust and commitment in relationships. Your reliability and dedication create a secure foundation for deep connections.",
-        personalityAdvice: [
-            "Ensure your loyalty to others doesn't override loyalty to yourself.",
-            "Recognize that trust can be rebuilt after small breaches.",
-            "Balance consistency with spontaneity and growth.",
-            "Allow yourself and others room to evolve and change.",
-            "Your steadfastness provides valuable security in relationships."
-        ],
-        relationshipAdvice: [
-            "Communicate your expectations clearly to avoid disappointment.",
-            "Practice forgiveness for minor transgressions.",
-            "Look for partners who value commitment as much as you do.",
-            "Build trust through small, consistent actions over time.",
-            "Create space for both security and adventure in your relationships."
-        ]
+// Load quiz data from API
+async function loadQuizData() {
+    try {
+        // Get current locale from i18n system
+        const locale = window.i18n ? window.i18n.getLocale() : 'en_US';
+        const headers = {
+            'Accept-Language': locale.replace('_', '-')
+        };
+        
+        const response = await fetch(`/api/quiz/${QUIZ_ID}`, { headers });
+        if (!response.ok) {
+            throw new Error('Failed to load quiz data');
+        }
+        const data = await response.json();
+        quizQuestions = data.questions;
+        quizMetadata = data.quiz;
+        
+        // Load personality types
+        const typesResponse = await fetch(`/api/quiz/${QUIZ_ID}/personality-types`, { headers });
+        if (typesResponse.ok) {
+            personalityTypes = await typesResponse.json();
+        }
+        
+        console.log('Quiz data loaded successfully for locale:', locale);
+        return true;
+    } catch (error) {
+        console.error('Error loading quiz data:', error);
+        // Fallback to show error message
+        showError('Failed to load quiz. Please refresh the page.');
+        return false;
     }
-];
+}
+
+// Show error message
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    const errorTitle = window.i18n ? window.i18n.t('common.error') : 'Error';
+    const reloadText = window.i18n ? window.i18n.t('common.reload_page') : 'Reload Page';
+    errorDiv.innerHTML = `
+        <div style="background: #fee; border: 1px solid #fcc; padding: 20px; margin: 20px; border-radius: 8px; color: #c33;">
+            <h3>${errorTitle}</h3>
+            <p>${message}</p>
+            <button onclick="location.reload()" style="background: #c33; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">${reloadText}</button>
+        </div>
+    `;
+    document.body.insertBefore(errorDiv, document.body.firstChild);
+}
 
 // DOM elements
 const welcomeScreen = document.getElementById('welcome-screen');
@@ -154,6 +66,8 @@ const personalityResult = document.getElementById('personality-result');
 const personalityAdvice = document.getElementById('personality-advice');
 const relationshipAdvice = document.getElementById('relationship-advice');
 const restartBtn = document.getElementById('restart-btn');
+const backBtn = document.getElementById('back-btn');
+const nextBtn = document.getElementById('next-btn');
 
 // Quiz state
 let currentQuestionIndex = 0;
@@ -162,12 +76,17 @@ let quizCompleted = false;
 let userPersonalityType = null;
 
 // Initialize the quiz
-function initQuiz() {
+async function initQuiz() {
     currentQuestionIndex = 0;
     userAnswers = [];
     quizCompleted = false;
     userPersonalityType = null;
-    showScreen(welcomeScreen);
+    
+    // Load quiz data from API
+    const loaded = await loadQuizData();
+    if (loaded) {
+        showScreen(welcomeScreen);
+    }
 }
 
 // Show a specific screen and hide others
@@ -184,24 +103,68 @@ function showScreen(screenToShow) {
 
 // Load a question
 function loadQuestion() {
-    const question = quizQuestions[currentQuestionIndex];
-    questionText.textContent = question.question;
+    if (currentQuestionIndex < quizQuestions.length) {
+        const question = quizQuestions[currentQuestionIndex];
+        questionText.textContent = question.question;
+        
+        // Clear previous options
+        optionsContainer.innerHTML = '';
+        
+        // Create option buttons
+        question.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.className = 'option';
+            button.textContent = option.text;
+            button.onclick = () => selectOption(index);
+            
+            // If this question was already answered, highlight the selected option
+            if (userAnswers[currentQuestionIndex] === index) {
+                button.classList.add('selected');
+            }
+            
+            optionsContainer.appendChild(button);
+        });
+        
+        // Update progress bar
+        const progress = ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
+        progressBar.style.width = progress + '%';
+        
+        // Update navigation buttons
+        updateNavigationButtons();
+    }
+}
+
+// Update navigation button visibility and state
+function updateNavigationButtons() {
+    // Show/hide back button
+    if (currentQuestionIndex > 0) {
+        backBtn.style.display = 'inline-block';
+    } else {
+        backBtn.style.display = 'none';
+    }
     
-    // Clear previous options
-    optionsContainer.innerHTML = '';
-    
-    // Create option elements
-    question.options.forEach((option, index) => {
-        const optionElement = document.createElement('div');
-        optionElement.classList.add('option');
-        optionElement.textContent = option;
-        optionElement.addEventListener('click', () => selectOption(index));
-        optionsContainer.appendChild(optionElement);
-    });
-    
-    // Update progress bar
-    const progress = ((currentQuestionIndex) / quizQuestions.length) * 100;
-    progressBar.style.width = `${progress}%`;
+    // Show/hide and enable/disable next button
+    if (currentQuestionIndex < quizQuestions.length - 1) {
+        nextBtn.style.display = 'inline-block';
+        // Enable next button only if current question is answered
+        if (userAnswers[currentQuestionIndex] !== undefined) {
+            nextBtn.disabled = false;
+        } else {
+            nextBtn.disabled = true;
+        }
+    } else {
+        // Last question - show finish button instead
+        const finishText = window.i18n ? window.i18n.t('quiz.finish_quiz') : 'Finish Quiz';
+        if (userAnswers[currentQuestionIndex] !== undefined) {
+            nextBtn.style.display = 'inline-block';
+            nextBtn.textContent = finishText;
+            nextBtn.disabled = false;
+        } else {
+            nextBtn.style.display = 'inline-block';
+            nextBtn.textContent = finishText;
+            nextBtn.disabled = true;
+        }
+    }
 }
 
 // Handle option selection
@@ -219,55 +182,104 @@ function selectOption(optionIndex) {
         }
     });
     
-    // Move to next question after a short delay
+    // Update navigation buttons after selection
+    updateNavigationButtons();
+    
+    // Auto-navigate to next question after a short delay
     setTimeout(() => {
-        currentQuestionIndex++;
-        
-        if (currentQuestionIndex < quizQuestions.length) {
+        if (currentQuestionIndex < quizQuestions.length - 1) {
+            // Move to next question
+            currentQuestionIndex++;
             loadQuestion();
         } else {
+            // Last question - complete quiz
             completeQuiz();
         }
-    }, 500);
+    }, 500); // 500ms delay to allow user to see their selection
 }
 
+// Handle back button click
+backBtn.addEventListener('click', () => {
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        loadQuestion();
+    }
+});
+
+// Handle next button click
+nextBtn.addEventListener('click', () => {
+    if (currentQuestionIndex < quizQuestions.length - 1) {
+        currentQuestionIndex++;
+        loadQuestion();
+    } else {
+        // Last question - finish quiz
+        completeQuiz();
+    }
+});
+
 // Complete the quiz and show payment screen
-function completeQuiz() {
+async function completeQuiz() {
     quizCompleted = true;
-    showScreen(paymentScreen);
+    userPersonalityType = await determinePersonalityType();
     
-    // Determine personality type based on answers
-    determinePersonalityType();
+    // Check for secret code
+    const secretCode = document.getElementById('secret-code')?.value?.trim();
+    if (secretCode === 'FREEPASS') {
+        // Skip payment and go directly to results
+        displayResults();
+        return;
+    }
+    
+    showScreen(paymentScreen);
 }
 
 // Determine personality type based on user answers
-function determinePersonalityType() {
-    // Simple algorithm to determine personality type based on most frequent answer pattern
-    const answerCounts = [0, 0, 0, 0, 0];
-    
-    userAnswers.forEach(answer => {
-        // Map answers to personality types (simplified approach)
-        if (answer === 0) answerCounts[0]++; // Communicator
-        else if (answer === 1) answerCounts[3]++; // Independent
-        else if (answer === 2) answerCounts[1]++; // Nurturer
-        else if (answer === 3) answerCounts[2]++; // Harmonizer
-        
-        // Additional logic to count for Loyalist type
-        if (answer === 1 && userAnswers.includes(3)) answerCounts[4]++; // Loyalist
-    });
-    
-    // Find the personality type with the highest count
-    let maxCount = 0;
-    let personalityIndex = 0;
-    
-    answerCounts.forEach((count, index) => {
-        if (count > maxCount) {
-            maxCount = count;
-            personalityIndex = index;
+async function determinePersonalityType() {
+    try {
+        // Generate or get session ID for detailed scoring storage
+        const sessionId = window.currentSessionId || generateSessionId();
+        if (!window.currentSessionId) {
+            window.currentSessionId = sessionId;
         }
-    });
-    
-    userPersonalityType = personalityTypes[personalityIndex];
+        
+        const response = await fetch(`/api/quiz/${QUIZ_ID}/calculate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                answers: userAnswers,
+                sessionId: sessionId
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to calculate personality type');
+        }
+        
+        const result = await response.json();
+        
+        // Store detailed results for potential debugging or analytics
+        if (result.calculationDetails) {
+            console.log('Quiz Calculation Details:', result.calculationDetails);
+        }
+        
+        return result;
+    } catch (error) {
+        console.error('Error determining personality type:', error);
+        // Fallback to first personality type if API fails
+        return personalityTypes[0] || {
+            type: 'Unknown',
+            description: 'Unable to determine personality type.',
+            personalityAdvice: [],
+            relationshipAdvice: []
+        };
+    }
+}
+
+// Generate a unique session ID
+function generateSessionId() {
+    return 'quiz_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
 // Display quiz results
@@ -299,19 +311,35 @@ function displayResults() {
 
 // Event listeners
 startBtn.addEventListener('click', () => {
-    showScreen(quizScreen);
-    loadQuestion();
+    if (quizQuestions.length > 0) {
+        showScreen(quizScreen);
+        loadQuestion();
+    } else {
+        const errorMsg = window.i18n ? window.i18n.t('errors.quiz_not_loaded') : 'Quiz data not loaded. Please refresh the page.';
+        showError(errorMsg);
+    }
 });
 
-restartBtn.addEventListener('click', () => {
-    initQuiz();
+restartBtn.addEventListener('click', async () => {
+    await initQuiz();
 });
 
 // Initialize the quiz when the page loads
-document.addEventListener('DOMContentLoaded', initQuiz);
+document.addEventListener('DOMContentLoaded', async () => {
+    await initQuiz();
+});
+
+// Update payment.js integration
+window.addEventListener('load', () => {
+    // Ensure payment module can access quiz state
+    if (window.paymentModule) {
+        window.paymentModule.setQuizModule(window.quizModule);
+    }
+});
 
 // Export functions for payment.js to use
 window.quizModule = {
     displayResults: displayResults,
-    quizCompleted: () => quizCompleted
+    quizCompleted: () => quizCompleted,
+    QUIZ_ID: QUIZ_ID
 };

@@ -1,0 +1,92 @@
+{
+  "quiz": {
+    "title": "Quiz de Personalidad en Relaciones",
+    "description": "Descubre tu tipo de personalidad en las relaciones",
+    "start_button": "Comenzar Quiz",
+    "next_button": "Siguiente",
+    "previous_button": "Anterior",
+    "submit_button": "Enviar",
+    "loading": "Cargando...",
+    "questions": {
+      "q1": "¿Cómo prefieres pasar una noche perfecta con tu pareja?",
+      "q1_option_1": "Una cena romántica en casa con velas",
+      "q1_option_2": "Salir a un restaurante elegante",
+      "q1_option_3": "Ver una película juntos en el sofá",
+      "q1_option_4": "Ir a un concierto o evento en vivo",
+      "q2": "¿Cómo manejas los conflictos en tu relación?",
+      "q2_option_1": "Hablo inmediatamente sobre el problema",
+      "q2_option_2": "Tomo tiempo para pensar antes de hablar",
+      "q2_option_3": "Trato de evitar la confrontación",
+      "q2_option_4": "Busco un compromiso que funcione para ambos",
+      "q3": "¿Qué es lo más importante para ti en una relación?",
+      "q3_option_1": "Comunicación abierta y honesta",
+      "q3_option_2": "Confianza y lealtad mutua",
+      "q3_option_3": "Diversión y aventura compartida",
+      "q3_option_4": "Apoyo emocional y comprensión",
+      "q4": "¿Cómo expresas tu amor?",
+      "q4_option_1": "A través de palabras de afirmación",
+      "q4_option_2": "Con actos de servicio",
+      "q4_option_3": "Dando regalos significativos",
+      "q4_option_4": "Con contacto físico y cercanía",
+      "q5": "¿Qué te atrae más de una persona?",
+      "q5_option_1": "Su inteligencia y conversación",
+      "q5_option_2": "Su sentido del humor",
+      "q5_option_3": "Su estabilidad emocional",
+      "q5_option_4": "Su pasión y energía"
+    }
+  },
+  "personality_types": {
+    "romantic": {
+      "title": "El Romántico",
+      "description": "Eres una persona que valora profundamente la conexión emocional y los gestos románticos. Buscas una relación llena de amor, comprensión y momentos especiales.",
+      "advice": "Mantén el equilibrio entre romance y realidad. Comunica tus necesidades emocionales claramente y aprecia los pequeños gestos de amor en la vida cotidiana."
+    },
+    "adventurer": {
+      "title": "El Aventurero",
+      "description": "Eres espontáneo y buscas emoción en tu relación. Valoras la libertad, la aventura y las nuevas experiencias compartidas con tu pareja.",
+      "advice": "Encuentra una pareja que comparta tu amor por la aventura, pero también aprende a valorar los momentos tranquilos juntos. La estabilidad puede coexistir con la emoción."
+    },
+    "nurturer": {
+      "title": "El Cuidador",
+      "description": "Eres naturalmente cariñoso y te enfocas en cuidar y apoyar a tu pareja. Tu felicidad viene de hacer felices a otros y crear un ambiente amoroso.",
+      "advice": "Recuerda cuidarte a ti mismo también. Establece límites saludables y asegúrate de que tus propias necesidades también sean atendidas en la relación."
+    },
+    "communicator": {
+      "title": "El Comunicador",
+      "description": "Valoras la comunicación abierta y honesta por encima de todo. Crees que los problemas se pueden resolver hablando y buscas una conexión intelectual profunda.",
+      "advice": "Continúa priorizando la comunicación, pero también aprende a escuchar sin juzgar. A veces tu pareja necesita ser escuchada más que aconsejada."
+    }
+  },
+  "payment": {
+    "title": "Obtén tu Resultado Completo",
+    "description": "Desbloquea tu análisis detallado de personalidad y consejos personalizados",
+    "price": "Solo $4.99",
+    "features": {
+      "detailed_analysis": "Análisis detallado de personalidad",
+      "personalized_advice": "Consejos personalizados para relaciones",
+      "compatibility_guide": "Guía de compatibilidad",
+      "relationship_tips": "Consejos para mejorar tu relación"
+    },
+    "pay_button": "Pagar Ahora",
+    "processing": "Procesando pago...",
+    "success": "¡Pago exitoso! Redirigiendo a tus resultados...",
+    "error": "Error en el pago. Por favor, inténtalo de nuevo."
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "save": "Guardar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "back": "Volver",
+    "continue": "Continuar",
+    "finish": "Finalizar",
+    "email_placeholder": "Ingresa tu email",
+    "required_field": "Este campo es obligatorio",
+    "invalid_email": "Email inválido"
+  }
+}

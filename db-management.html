@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .db-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .login-form {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #fff;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #6c5ce7;
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+        }
+        
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .error-message {
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .db-management {
+            display: none;
+        }
+        
+        .db-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(20px);
+        }
+        
+        .logout-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        
+        .db-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            border-color: #6c5ce7;
+        }
+        
+        .tab-content {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        
+        th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            margin: 2px;
+            min-width: auto;
+        }
+        
+        .edit-btn {
+            background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+        }
+        
+        .delete-btn {
+            background: linear-gradient(135deg, #e17055 0%, #d63031 100%);
+        }
+        
+        .sql-editor {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        
+        .execute-btn {
+            background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-form">
+            <h2>Database Management Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" placeholder="Enter username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                <div id="login-error" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Database Management Interface -->
+    <div id="db-management" class="db-management">
+        <div class="db-container">
+            <div class="db-header">
+                <h1>Database Management System</h1>
+                <button id="logout-btn" class="btn logout-btn">Logout</button>
+            </div>
+            
+            <div class="db-tabs">
+                <button class="tab-btn active" data-tab="quizzes">Quizzes</button>
+                <button class="tab-btn" data-tab="questions">Questions</button>
+                <button class="tab-btn" data-tab="personality-types">Results</button>
+                <button class="tab-btn" data-tab="advice">Advice</button>
+                <button class="tab-btn" data-tab="question-weights">Question Weights</button>
+                <button class="tab-btn" data-tab="validation-rules">Validation Rules</button>
+                <button class="tab-btn" data-tab="business-rules">Business Rules</button>
+                <button class="tab-btn" data-tab="system-config">System Config</button>
+                <button class="tab-btn" data-tab="sql">SQL</button>
+            </div>
+            
+            <div id="quizzes-tab" class="tab-content">
+                <h3>Quiz Management</h3>
+                <button class="btn" onclick="addQuiz()">Add New Quiz</button>
+                <div class="table-container">
+                    <table id="quizzes-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Result Title</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="questions-tab" class="tab-content" style="display: none;">
+                <h3>Question Management</h3>
+                <div style="margin-bottom: 20px;">
+                    <label for="quiz-selector" style="color: #fff; margin-right: 10px;">Select Quiz:</label>
+                    <select id="quiz-selector" style="padding: 8px; border-radius: 5px; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.3);">
+                        <option value="">-- Select a Quiz --</option>
+                    </select>
+                    <button class="btn" onclick="addQuestion()" style="margin-left: 10px;">Add New Question</button>
+                </div>
+                <div class="table-container">
+                    <table id="questions-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Question</th>
+                                <th>Order</th>
+                                <th>Answer Options</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="personality-types-tab" class="tab-content" style="display: none;">
+                <h3>Results Management</h3>
+                <div style="margin-bottom: 20px;">
+                    <label for="results-quiz-selector" style="color: #fff; margin-right: 10px;">Select Quiz:</label>
+                    <select id="results-quiz-selector" style="padding: 8px; border-radius: 5px; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.3);">
+                        <option value="">-- Select a Quiz --</option>
+                    </select>
+                    <button class="btn" onclick="addPersonalityType()" style="margin-left: 10px;">Add New Result</button>
+                </div>
+                <div class="table-container">
+                    <table id="personality-types-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="advice-tab" class="tab-content" style="display: none;">
+                <h3>Advice Management</h3>
+                <div class="controls">
+                    <select id="advice-personality-selector">
+                        <option value="">Select Personality Type...</option>
+                    </select>
+                    <button class="btn add-btn" onclick="addAdvice()">Add Advice</button>
+                </div>
+                <div class="table-container">
+                    <table id="advice-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Personality Type</th>
+                                <th>Advice Type</th>
+                                <th>Advice Text</th>
+                                <th>Order</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="question-weights-tab" class="tab-content" style="display: none;">
+                <h3>Question Weights Management</h3>
+                <div class="controls">
+                    <select id="weights-quiz-selector">
+                        <option value="">Select Quiz...</option>
+                    </select>
+                    <button class="btn add-btn" onclick="addQuestionWeight()">Add Weight</button>
+                </div>
+                <div class="table-container">
+                    <table id="question-weights-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Question</th>
+                                <th>Weight Multiplier</th>
+                                <th>Importance Level</th>
+                                <th>Required</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="validation-rules-tab" class="tab-content" style="display: none;">
+                <h3>Validation Rules Management</h3>
+                <div class="controls">
+                    <select id="validation-quiz-selector">
+                        <option value="">Select Quiz...</option>
+                    </select>
+                    <button class="btn add-btn" onclick="addValidationRule()">Add Rule</button>
+                </div>
+                <div class="table-container">
+                    <table id="validation-rules-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Rule Name</th>
+                                <th>Rule Type</th>
+                                <th>Configuration</th>
+                                <th>Error Message</th>
+                                <th>Active</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="business-rules-tab" class="tab-content" style="display: none;">
+                <h3>Business Rules Management</h3>
+                <div class="controls">
+                    <select id="business-quiz-selector">
+                        <option value="">Select Quiz...</option>
+                    </select>
+                    <button class="btn add-btn" onclick="addBusinessRule()">Add Rule</button>
+                </div>
+                <div class="table-container">
+                    <table id="business-rules-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Rule Name</th>
+                                <th>Category</th>
+                                <th>Configuration</th>
+                                <th>Priority</th>
+                                <th>Active</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="system-config-tab" class="tab-content" style="display: none;">
+                <h3>System Configuration Management</h3>
+                <div class="controls">
+                    <select id="config-type-filter">
+                        <option value="">All Types</option>
+                        <option value="pricing">Pricing</option>
+                        <option value="display">Display</option>
+                        <option value="calculation">Calculation</option>
+                        <option value="validation">Validation</option>
+                    </select>
+                    <button class="btn add-btn" onclick="addSystemConfig()">Add Config</button>
+                </div>
+                <div class="table-container">
+                    <table id="system-config-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Config Key</th>
+                                <th>Config Type</th>
+                                <th>Config Value</th>
+                                <th>Description</th>
+                                <th>Active</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="sql-tab" class="tab-content" style="display: none;">
+                <h3>SQL Query Editor</h3>
+                <textarea id="sql-editor" class="sql-editor" placeholder="Enter your SQL query here..."></textarea>
+                <button class="btn execute-btn" onclick="executeSQL()">Execute Query</button>
+                <div id="sql-results" class="table-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="db-management.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+How Advice is Displayed:
+
+- After completing the quiz and payment, users see their personality type result along with two types of advice :
+  1. 1.
+     Personality Advice (5 items per type) - focused on personal growth and self-awareness
+  2. 2.
+     Relationship Advice (5 items per type) - focused on improving relationships and interactions
+Scoring Logic (Like a Coach/Counselor): The system uses a sophisticated weighted scoring approach:
+
+- Each answer option has personality weights (e.g., {communicator: 3, independent: 1} )
+- User answers accumulate points for different personality types
+- The personality type with the highest total score determines the result
+- All scores and percentages are calculated and stored for detailed analysis
+Advice Selection:
+
+- Users receive exactly 10 pieces of advice (5 personality + 5 relationship)
+- Advice is pre-written and curated for each of the 5 personality types:
+  - The Communicator
+  - The Nurturer
+  - The Harmonizer
+  - The Independent
+  - The Loyalist
+Professional Approach: The system follows counseling/coaching principles:
+
+- Evidence-based : Uses weighted scoring across multiple behavioral dimensions
+- Holistic : Covers both personal development and relationship skills
+- Actionable : Each advice item provides specific, implementable guidance
+- Balanced : Acknowledges strengths while suggesting growth areas
+The advice is comprehensive and professionally crafted, similar to what you'd receive from a relationship counselor, with specific guidance tailored to your dominant personality pattern based on your quiz responses.

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relationship Quiz</title>
+    <title data-i18n-title="quiz.title">Relationship Quiz</title>
     <meta property="og:title" content="Relationship Personality Quiz" />
     <meta property="og:description" content="Discover your relationship personality type and get personalized advice!" />
     <meta property="og:type" content="website" />
@@ -11,13 +11,16 @@
     <meta property="og:image" content="https://your-domain.com/quiz-preview.jpg" />
     <link rel="stylesheet" href="styles.css">
     <script src="https://js.stripe.com/v3/"></script>
+    <script src="i18n-frontend.js"></script>
 </head>
 <body>
     <div class="container">
         <div id="welcome-screen" class="screen active">
-            <h1>Relationship Personality Quiz</h1>
-            <p>Discover insights about your relationship style and get personalized advice!</p>
-            <button id="start-btn" class="btn">Start Quiz</button>
+            <div id="language-switcher-container"></div>
+            <h1 data-i18n="quiz.title">Relationship Personality Quiz</h1>
+            <p data-i18n="quiz.description">Discover insights about your relationship style and get personalized advice!</p>
+            <input type="text" id="secret-code" placeholder="Enter code (optional)" style="margin: 10px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 200px; display: block; margin-left: auto; margin-right: auto;">
+            <button id="start-btn" class="btn" data-i18n="quiz.startButton">Start Quiz</button>
         </div>
 
         <div id="quiz-screen" class="screen">
@@ -28,11 +31,15 @@
             <div id="progress-bar">
                 <div id="progress"></div>
             </div>
+            <div id="navigation-container">
+                <button id="back-btn" class="btn nav-btn" style="display: none;" data-i18n="quiz.previousQuestion">← Back</button>
+                <button id="next-btn" class="btn nav-btn" style="display: none;" data-i18n="quiz.nextQuestion">Next →</button>
+            </div>
         </div>
 
         <div id="payment-screen" class="screen">
-            <h2>Quiz Complete!</h2>
-            <p>To view your personalized results and advice, please complete the payment.</p>
+            <h2 data-i18n="payment.title">Quiz Complete!</h2>
+            <p data-i18n="payment.description">To view your personalized results and advice, please complete the payment.</p>
             <div id="payment-form-container">
                 <form id="payment-form">
                     <div id="payment-element"></div>
@@ -43,13 +50,13 @@
         </div>
 
         <div id="results-screen" class="screen">
-            <h2>Your Relationship Personality Results</h2>
+            <h2 data-i18n="results.title">Your Relationship Personality Results</h2>
             <div id="personality-result"></div>
-            <h3>Personality Insights</h3>
+            <h3 data-i18n="results.personalityInsights">Personality Insights</h3>
             <ul id="personality-advice"></ul>
-            <h3>Relationship Improvement Tips</h3>
+            <h3 data-i18n="results.relationshipTips">Relationship Improvement Tips</h3>
             <ul id="relationship-advice"></ul>
-            <button id="restart-btn" class="btn">Take Quiz Again</button>
+            <button id="restart-btn" class="btn" data-i18n="results.takeQuizAgain">Take Quiz Again</button>
         </div>
     </div>
 
@@ -58,12 +65,24 @@
     <script src="payment.js"></script>
     <script src="facebook-integration.js"></script>
     <script>
-        // Set button text from global config
+        // Initialize i18n and set up language switcher
         document.addEventListener('DOMContentLoaded', function() {
-            const submitButton = document.getElementById('submit-payment');
-            if (submitButton && window.QUIZ_PRICE) {
-                submitButton.textContent = window.QUIZ_PRICE.displayText;
-            }
+            // Wait for i18n to initialize
+            setTimeout(() => {
+                // Add language switcher to the welcome screen
+                const switcherContainer = document.getElementById('language-switcher-container');
+                if (switcherContainer && window.i18n) {
+                    const switcher = window.i18n.createLanguageSwitcher();
+                    switcherContainer.appendChild(switcher);
+                }
+
+                // Set payment button text with currency
+                const submitButton = document.getElementById('submit-payment');
+                if (submitButton && window.i18n && window.i18n.initialized) {
+                    const currencyInfo = window.i18n.getCurrencyInfo();
+                    submitButton.textContent = `${window.i18n.t('payment.payButton')} ${currencyInfo.symbol}${currencyInfo.amount.toFixed(2)}`;
+                }
+            }, 100);
         });
     </script>
 </body>

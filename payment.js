@@ -2,6 +2,8 @@
 let stripe;
 let elements;
 let paymentIntentId;
+let quizModule = null;
+let currentQuizId = 1; // Will be set by quiz module
 
 // Initialize Stripe elements when the payment screen is shown
 document.addEventListener('DOMContentLoaded', async () => {
@@ -11,7 +13,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         initializeStripe(publishableKey);
     } catch (error) {
         console.error('Failed to initialize Stripe:', error);
-        showPaymentMessage('Failed to initialize payment system. Please refresh the page.');
+        const errorMsg = window.i18n ? window.i18n.t('errors.payment_init_failed') : 'Failed to initialize payment system. Please refresh the page.';
+        showPaymentMessage(errorMsg);
     }
 });
 
@@ -84,12 +87,18 @@ async function getStripePublishableKey() {
 // Create a PaymentIntent by calling our server API
 async function createPaymentIntent() {
     try {
+        // Generate session ID for this quiz attempt
+        const sessionId = generateSessionId();
+        
         const response = await fetch('/create-payment-intent', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({}),
+            body: JSON.stringify({
+                sessionId: sessionId,
+                quizId: currentQuizId
+            }),
         });
         
         if (!response.ok) {
@@ -97,11 +106,20 @@ async function createPaymentIntent() {
         }
         
         const data = await response.json();
+        
+        // Store session ID for later use
+        window.currentSessionId = sessionId;
+        
         return data.clientSecret;
     } catch (error) {
         console.error('Error creating payment intent:', error);
         throw error;
     }
+}
+
+// Generate a unique session ID
+function generateSessionId() {
+    return 'quiz_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
 // Handle payment form submission
@@ -110,7 +128,8 @@ async function handlePaymentSubmission(e) {
     
     const submitButton = document.getElementById('submit-payment');
     submitButton.disabled = true;
-    submitButton.textContent = 'Processing...';
+    const processingText = window.i18n ? window.i18n.t('payment.processing') : 'Processing...';
+    submitButton.textContent = processingText;
     
     try {
         // Confirm the payment with Stripe
@@ -129,26 +148,84 @@ async function handlePaymentSubmission(e) {
             handleSuccessfulPayment();
         } else {
             // Payment requires additional action or is processing
-            showPaymentMessage('Payment is processing. Please wait...', 'info');
+            const processingMsg = window.i18n ? window.i18n.t('payment.processing_wait') : 'Payment is processing. Please wait...';
+            showPaymentMessage(processingMsg, 'info');
         }
     } catch (error) {
-        showPaymentMessage('Payment failed: ' + error.message);
+        const failedMsg = window.i18n ? window.i18n.t('payment.failed') : 'Payment failed';
+        showPaymentMessage(failedMsg + ': ' + error.message);
         console.error('Payment error:', error);
     } finally {
         submitButton.disabled = false;
-        submitButton.textContent = window.QUIZ_PRICE ? window.QUIZ_PRICE.displayText : 'Pay $1.00 USD';
+        const payText = window.i18n && window.i18n.currencyInfo ? 
+            `${window.i18n.t('payment.pay')} ${window.i18n.currencyInfo.symbol}${window.i18n.currencyInfo.amount} ${window.i18n.currencyInfo.code}` : 
+            (window.QUIZ_PRICE ? window.QUIZ_PRICE.displayText : 'Pay $1.00 USD');
+        submitButton.textContent = payText;
     }
 }
 
 // Handle successful payment
-function handleSuccessfulPayment() {
-    showPaymentMessage('Payment successful! Loading your results...', 'success');
+async function handleSuccessfulPayment() {
+    const successMsg = window.i18n ? window.i18n.t('payment.success_saving') : 'Payment successful! Saving your results...';
+    showPaymentMessage(successMsg, 'success');
     
-    // Show results after a short delay
-    setTimeout(() => {
-        // Display the quiz results
-        window.quizModule.displayResults();
-    }, 1500);
+    try {
+        // Save quiz results to database
+        await saveQuizResults();
+        
+        // Show results after a short delay
+        setTimeout(() => {
+            // Display the quiz results
+            if (window.quizModule) {
+                window.quizModule.displayResults();
+            }
+        }, 1500);
+    } catch (error) {
+        console.error('Error saving quiz results:', error);
+        const warningMsg = window.i18n ? window.i18n.t('payment.success_save_failed') : 'Payment successful, but failed to save results. Please contact support.';
+        showPaymentMessage(warningMsg, 'warning');
+        
+        // Still show results even if saving failed
+        setTimeout(() => {
+            if (window.quizModule) {
+                window.quizModule.displayResults();
+            }
+        }, 1500);
+    }
+}
+
+// Save quiz results to database
+async function saveQuizResults() {
+    if (!window.currentSessionId || !window.userAnswers || !window.userPersonalityType) {
+        throw new Error('Missing quiz data for saving results');
+    }
+    
+    try {
+        const response = await fetch('/save-quiz-result', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                sessionId: window.currentSessionId,
+                email: '', // Could be collected from a form if needed
+                answers: window.userAnswers,
+                resultType: window.userPersonalityType.key || window.userPersonalityType.type,
+                quizId: currentQuizId
+            }),
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to save quiz results');
+        }
+        
+        const result = await response.json();
+        console.log('Quiz results saved successfully:', result);
+        return result;
+    } catch (error) {
+        console.error('Error saving quiz results:', error);
+        throw error;
+    }
 }
 
 // Show payment message
@@ -174,8 +251,23 @@ function showPaymentMessage(message, type = 'error') {
     }
 }
 
+// Set quiz module reference
+function setQuizModule(module) {
+    quizModule = module;
+    if (module && module.QUIZ_ID) {
+        currentQuizId = module.QUIZ_ID;
+    }
+}
+
+// Export payment module functions
+window.paymentModule = {
+    setQuizModule: setQuizModule,
+    handleSuccessfulPayment: handleSuccessfulPayment,
+    saveQuizResults: saveQuizResults
+};
+
 // In a real application, you would also implement:
-// 1. Server-side API to create PaymentIntents
-// 2. Webhook handling for payment events
-// 3. Database to store payment status
-// 4. Error handling and recovery
+// 1. Server-side API to create PaymentIntents ✓
+// 2. Webhook handling for payment events ✓
+// 3. Database to store payment status ✓
+// 4. Error handling and recovery ✓
