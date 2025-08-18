@@ -43,7 +43,7 @@
             <div id="payment-form-container">
                 <form id="payment-form">
                     <div id="payment-element"></div>
-                    <button id="submit-payment" class="btn"></button>
+                    <button id="submit-payment" class="btn" data-i18n="payment.button_pay">Pay Now</button>
                     <div id="payment-message"></div>
                 </form>
             </div>
@@ -80,7 +80,9 @@
                 const submitButton = document.getElementById('submit-payment');
                 if (submitButton && window.i18n && window.i18n.initialized) {
                     const currencyInfo = window.i18n.getCurrencyInfo();
-                    submitButton.textContent = `${window.i18n.t('payment.payButton')} ${currencyInfo.symbol}${currencyInfo.amount.toFixed(2)}`;
+                    const buttonText = window.i18n.t('payment.button_pay') || window.i18n.t('payment.payButton') || 'Pay';
+                    submitButton.textContent = `${buttonText} ${currencyInfo.symbol}${currencyInfo.amount.toFixed(2)}`;
+                    console.log('Payment button updated:', submitButton.textContent);
                 }
             }, 100);
         });
