@@ -19,6 +19,8 @@ class I18nFrontend {
                 const browserLang = navigator.language || navigator.userLanguage;
                 if (browserLang.startsWith('pt')) {
                     this.locale = 'pt_BR';
+                } else if (browserLang.startsWith('es')) {
+                    this.locale = 'es_ES';
                 } else {
                     this.locale = 'en_US';
                 }
@@ -130,7 +132,8 @@ class I18nFrontend {
     getSupportedLocales() {
         return [
             { code: 'en_US', name: 'English', flag: '🇺🇸' },
-            { code: 'pt_BR', name: 'Português (Brasil)', flag: '🇧🇷' }
+            { code: 'pt_BR', name: 'Português (Brasil)', flag: '🇧🇷' },
+            { code: 'es_ES', name: 'Español', flag: '🇪🇸' }
         ];
     }
 
@@ -141,6 +144,7 @@ class I18nFrontend {
             <select id="locale-select" class="locale-select">
                 <option value="en_US" ${this.locale === 'en_US' ? 'selected' : ''}>🇺🇸 English</option>
                 <option value="pt_BR" ${this.locale === 'pt_BR' ? 'selected' : ''}>🇧🇷 Português</option>
+                <option value="es_ES" ${this.locale === 'es_ES' ? 'selected' : ''}>🇪🇸 Español</option>
             </select>
         `;
 
