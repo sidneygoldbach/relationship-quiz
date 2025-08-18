@@ -11,9 +11,16 @@ if [ ! -f "package.json" ]; then
     exit 1
 fi
 
+# Configurar banco se necessário
+echo "🔧 Verificando configuração do banco..."
+if ! PGPASSWORD='RelQuiz2024!Secure' psql -h localhost -U relationshipquiz -d relationshipquiz -c "SELECT 1;" > /dev/null 2>&1; then
+    echo "⚠️ Banco não configurado. Execute primeiro: ./setup-kamatera-database.sh"
+    exit 1
+fi
+
 # Fazer backup do banco antes das alterações
 echo "💾 Fazendo backup do banco de dados..."
-sudo -u postgres pg_dump relationshipquiz > backup_before_fixes_$(date +%Y%m%d_%H%M%S).sql
+PGPASSWORD='RelQuiz2024!Secure' pg_dump -h localhost -U relationshipquiz relationshipquiz > backup_before_fixes_$(date +%Y%m%d_%H%M%S).sql
 
 # Parar o serviço temporariamente
 echo "⏸️ Parando o serviço..."
@@ -39,7 +46,7 @@ const pool = new Pool({
   user: 'relationshipquiz',
   host: 'localhost', 
   database: 'relationshipquiz',
-  password: 'your_secure_password_here',
+  password: 'RelQuiz2024!Secure',
   port: 5432
 });
 

@@ -5,7 +5,7 @@ const pool = new Pool({
   user: 'relationshipquiz',
   host: 'localhost',
   database: 'relationshipquiz',
-  password: 'your_secure_password_here', // Substitua pela senha real
+  password: 'RelQuiz2024!Secure',
   port: 5432,
 });
 
