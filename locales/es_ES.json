@@ -33,7 +33,8 @@
       "q5_option_2": "Su sentido del humor",
       "q5_option_3": "Su estabilidad emocional",
       "q5_option_4": "Su pasión y energía"
-    }
+    },
+    "finish_quiz": "Finalizar Quiz"
   },
   "personality_types": {
     "romantic": {

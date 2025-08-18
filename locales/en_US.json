@@ -27,7 +27,8 @@
     "nextQuestion": "Next Question",
     "calculateResults": "Calculate Results",
     "retakeQuiz": "Take Quiz Again",
-    "shareResults": "Share Results"
+    "shareResults": "Share Results",
+    "finish_quiz": "Finish Quiz"
   },
   "results": {
     "title": "Your Relationship Personality Results",
@@ -78,66 +79,66 @@
     "q5_option_2": "Withdraw and process my emotions privately.",
     "q5_option_3": "Try to understand their perspective before reacting.",
     "q5_option_4": "Tend to forgive quickly and move forward."
-   },
-   "personality_types": {
-     "communicator": {
-       "title": "The Communicator",
-       "description": "You value open and honest communication in relationships. You're direct about your needs and feelings, which helps prevent misunderstandings.",
-       "personality_advice_1": "Practice active listening to balance your directness with empathy.",
-       "personality_advice_2": "Remember that not everyone processes emotions as quickly as you do.",
-       "personality_advice_3": "Your honesty is a gift, but timing and delivery matter.",
-       "personality_advice_4": "Create safe spaces for others to share their thoughts without judgment.",
-       "personality_advice_5": "Use your communication skills to build bridges, not walls.",
-       "relationship_advice_1": "Ask open-ended questions to encourage deeper conversations.",
-       "relationship_advice_2": "Practice patience when others need time to articulate their feelings.",
-       "relationship_advice_3": "Look for partners who appreciate your directness and can match your communication style.",
-       "relationship_advice_4": "Balance talking with listening in your relationships.",
-       "relationship_advice_5": "Use 'I' statements to express your needs without making others defensive."
-     },
-     "harmonizer": {
-       "title": "The Harmonizer",
-       "description": "You excel at creating balance and peace in relationships. Your ability to see multiple perspectives makes you a natural mediator and supportive partner.",
-       "personality_advice_1": "Don't sacrifice your own needs for the sake of keeping peace.",
-       "personality_advice_2": "Practice expressing your preferences, even when they might create minor conflict.",
-       "personality_advice_3": "Your empathy is a strength, but remember to set healthy boundaries.",
-       "personality_advice_4": "Trust that healthy relationships can handle some disagreement.",
-       "personality_advice_5": "Value your peacemaking abilities while honoring your authentic self.",
-       "relationship_advice_1": "Communicate your needs clearly, even if it feels uncomfortable at first.",
-       "relationship_advice_2": "Practice saying 'no' when requests don't align with your values or capacity.",
-       "relationship_advice_3": "Look for partners who value compromise as much as you do.",
-       "relationship_advice_4": "Address small issues before they become major problems.",
-       "relationship_advice_5": "Celebrate the strength in your adaptability and peacemaking skills."
-     },
-     "independent": {
-       "title": "The Independent",
-       "description": "You value autonomy and personal growth in relationships. You bring a strong sense of self and clear boundaries to your connections.",
-       "personality_advice_1": "Balance independence with vulnerability for deeper connections.",
-       "personality_advice_2": "Share your internal process with trusted others.",
-       "personality_advice_3": "Recognize when self-reliance becomes a barrier to intimacy.",
-       "personality_advice_4": "Practice asking for help when needed.",
-       "personality_advice_5": "Your self-sufficiency is a strength that brings stability to relationships.",
-       "relationship_advice_1": "Communicate your need for space proactively, not reactively.",
-       "relationship_advice_2": "Create rituals of connection to balance your independence.",
-       "relationship_advice_3": "Look for partners who respect your autonomy without feeling threatened.",
-       "relationship_advice_4": "Invest in interdependence alongside independence.",
-       "relationship_advice_5": "Share your growth journey with those closest to you."
-     },
-     "loyalist": {
-       "title": "The Loyalist",
-       "description": "You prioritize trust and commitment in relationships. Your reliability and dedication create a secure foundation for deep connections.",
-       "personality_advice_1": "Ensure your loyalty to others doesn't override loyalty to yourself.",
-       "personality_advice_2": "Recognize that trust can be rebuilt after small breaches.",
-       "personality_advice_3": "Balance consistency with spontaneity and growth.",
-       "personality_advice_4": "Allow yourself and others room to evolve and change.",
-       "personality_advice_5": "Your steadfastness provides valuable security in relationships.",
-       "relationship_advice_1": "Communicate your expectations clearly to avoid disappointment.",
-       "relationship_advice_2": "Practice forgiveness for minor transgressions.",
-       "relationship_advice_3": "Look for partners who value commitment as much as you do.",
-       "relationship_advice_4": "Build trust through small, consistent actions over time.",
-       "relationship_advice_5": "Create space for both security and adventure in your relationships."
-     }
-   },
-   "admin": {
+  },
+  "personality_types": {
+    "communicator": {
+      "title": "The Communicator",
+      "description": "You value open and honest communication in relationships. You're direct about your needs and feelings, which helps prevent misunderstandings.",
+      "personality_advice_1": "Practice active listening to balance your directness with empathy.",
+      "personality_advice_2": "Remember that not everyone processes emotions as quickly as you do.",
+      "personality_advice_3": "Your honesty is a gift, but timing and delivery matter.",
+      "personality_advice_4": "Create safe spaces for others to share their thoughts without judgment.",
+      "personality_advice_5": "Use your communication skills to build bridges, not walls.",
+      "relationship_advice_1": "Ask open-ended questions to encourage deeper conversations.",
+      "relationship_advice_2": "Practice patience when others need time to articulate their feelings.",
+      "relationship_advice_3": "Look for partners who appreciate your directness and can match your communication style.",
+      "relationship_advice_4": "Balance talking with listening in your relationships.",
+      "relationship_advice_5": "Use 'I' statements to express your needs without making others defensive."
+    },
+    "harmonizer": {
+      "title": "The Harmonizer",
+      "description": "You excel at creating balance and peace in relationships. Your ability to see multiple perspectives makes you a natural mediator and supportive partner.",
+      "personality_advice_1": "Don't sacrifice your own needs for the sake of keeping peace.",
+      "personality_advice_2": "Practice expressing your preferences, even when they might create minor conflict.",
+      "personality_advice_3": "Your empathy is a strength, but remember to set healthy boundaries.",
+      "personality_advice_4": "Trust that healthy relationships can handle some disagreement.",
+      "personality_advice_5": "Value your peacemaking abilities while honoring your authentic self.",
+      "relationship_advice_1": "Communicate your needs clearly, even if it feels uncomfortable at first.",
+      "relationship_advice_2": "Practice saying 'no' when requests don't align with your values or capacity.",
+      "relationship_advice_3": "Look for partners who value compromise as much as you do.",
+      "relationship_advice_4": "Address small issues before they become major problems.",
+      "relationship_advice_5": "Celebrate the strength in your adaptability and peacemaking skills."
+    },
+    "independent": {
+      "title": "The Independent",
+      "description": "You value autonomy and personal growth in relationships. You bring a strong sense of self and clear boundaries to your connections.",
+      "personality_advice_1": "Balance independence with vulnerability for deeper connections.",
+      "personality_advice_2": "Share your internal process with trusted others.",
+      "personality_advice_3": "Recognize when self-reliance becomes a barrier to intimacy.",
+      "personality_advice_4": "Practice asking for help when needed.",
+      "personality_advice_5": "Your self-sufficiency is a strength that brings stability to relationships.",
+      "relationship_advice_1": "Communicate your need for space proactively, not reactively.",
+      "relationship_advice_2": "Create rituals of connection to balance your independence.",
+      "relationship_advice_3": "Look for partners who respect your autonomy without feeling threatened.",
+      "relationship_advice_4": "Invest in interdependence alongside independence.",
+      "relationship_advice_5": "Share your growth journey with those closest to you."
+    },
+    "loyalist": {
+      "title": "The Loyalist",
+      "description": "You prioritize trust and commitment in relationships. Your reliability and dedication create a secure foundation for deep connections.",
+      "personality_advice_1": "Ensure your loyalty to others doesn't override loyalty to yourself.",
+      "personality_advice_2": "Recognize that trust can be rebuilt after small breaches.",
+      "personality_advice_3": "Balance consistency with spontaneity and growth.",
+      "personality_advice_4": "Allow yourself and others room to evolve and change.",
+      "personality_advice_5": "Your steadfastness provides valuable security in relationships.",
+      "relationship_advice_1": "Communicate your expectations clearly to avoid disappointment.",
+      "relationship_advice_2": "Practice forgiveness for minor transgressions.",
+      "relationship_advice_3": "Look for partners who value commitment as much as you do.",
+      "relationship_advice_4": "Build trust through small, consistent actions over time.",
+      "relationship_advice_5": "Create space for both security and adventure in your relationships."
+    }
+  },
+  "admin": {
     "title": "Admin Dashboard",
     "stats": "Statistics",
     "users": "Users",

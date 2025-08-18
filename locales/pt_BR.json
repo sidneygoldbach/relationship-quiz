@@ -27,7 +27,8 @@
     "nextQuestion": "Próxima Pergunta",
     "calculateResults": "Calcular Resultados",
     "retakeQuiz": "Refazer Quiz",
-    "shareResults": "Compartilhar Resultados"
+    "shareResults": "Compartilhar Resultados",
+    "finish_quiz": "Finalizar Quiz"
   },
   "results": {
     "title": "Seus Resultados de Personalidade para Relacionamentos",
@@ -135,9 +136,9 @@
       "relationship_advice_3": "Procure parceiros que valorizem compromisso tanto quanto você.",
       "relationship_advice_4": "Construa confiança através de pequenas ações consistentes ao longo do tempo.",
       "relationship_advice_5": "Crie espaço tanto para segurança quanto para aventura em seus relacionamentos."
-     }
-   },
-   "admin": {
+    }
+  },
+  "admin": {
     "title": "Painel Administrativo",
     "stats": "Estatísticas",
     "users": "Usuários",
