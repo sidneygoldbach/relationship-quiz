@@ -56,15 +56,13 @@ async function diagnoseKamateraDatabase() {
     // 4. Listar todas as perguntas
     console.log('\n4. 📝 Lista de todas as perguntas:');
     const allQuestions = await pool.query(`
-      SELECT id, question_text, 
-             CASE WHEN EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name = 'questions' AND column_name = 'locale') 
-                  THEN locale ELSE 'no_locale_column' END as locale_info
+      SELECT id, question_text, country
       FROM questions 
       ORDER BY id
     `);
     
     allQuestions.rows.forEach(q => {
-      console.log(`  ID ${q.id}: "${q.question_text.substring(0, 50)}..." (locale: ${q.locale_info})`);
+      console.log(`  ID ${q.id}: "${q.question_text.substring(0, 50)}..." (country: ${q.country || 'null'})`);
     });
 
     // 5. Verificar especificamente a pergunta 24
