@@ -78,14 +78,73 @@
 
                 // Set payment button text with currency
                 const submitButton = document.getElementById('submit-payment');
+                console.log('=== PAYMENT BUTTON DEBUG ===');
+                console.log('Submit button found:', !!submitButton);
+                console.log('window.i18n exists:', !!window.i18n);
+                console.log('i18n initialized:', window.i18n?.initialized);
+                console.log('Current locale:', window.i18n?.getLocale());
+                
                 if (submitButton && window.i18n && window.i18n.initialized) {
                     const currencyInfo = window.i18n.getCurrencyInfo();
-                    const buttonText = window.i18n.t('payment.button_pay') || window.i18n.t('payment.payButton') || 'Pay';
-                    submitButton.textContent = `${buttonText} ${currencyInfo.symbol}${currencyInfo.amount.toFixed(2)}`;
-                    console.log('Payment button updated:', submitButton.textContent);
+                    console.log('Currency info:', currencyInfo);
+                    
+                    const buttonPayText = window.i18n.t('payment.button_pay');
+                    const payButtonText = window.i18n.t('payment.payButton');
+                    console.log('payment.button_pay translation:', buttonPayText);
+                    console.log('payment.payButton translation:', payButtonText);
+                    
+                    const buttonText = buttonPayText || payButtonText || 'Pay';
+                    console.log('Final button text (before currency):', buttonText);
+                    
+                    const fullButtonText = `${buttonText} ${currencyInfo.symbol}${currencyInfo.amount.toFixed(2)}`;
+                    submitButton.textContent = fullButtonText;
+                    console.log('Payment button updated:', fullButtonText);
+                } else {
+                    console.log('Payment button update skipped - conditions not met');
                 }
             }, 100);
+            
+            // Additional check after more time to ensure i18n is fully loaded
+            setTimeout(() => {
+                const submitButton = document.getElementById('submit-payment');
+                if (submitButton && window.i18n && window.i18n.initialized) {
+                    console.log('=== SECOND PAYMENT BUTTON CHECK ===');
+                    const currencyInfo = window.i18n.getCurrencyInfo();
+                    const buttonText = window.i18n.t('payment.button_pay') || window.i18n.t('payment.payButton') || 'Pay';
+                    const fullButtonText = `${buttonText} ${currencyInfo.symbol}${currencyInfo.amount.toFixed(2)}`;
+                    submitButton.textContent = fullButtonText;
+                    console.log('Second update - Payment button text:', fullButtonText);
+                }
+            }, 2000);
         });
-    </script>
+    
+        // Fix payment button when payment screen is shown
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                    const paymentScreenElement = document.getElementById('payment-screen');
+                    if (paymentScreenElement && paymentScreenElement.style.display !== 'none') {
+                        // Payment screen is now visible, update button
+                        setTimeout(() => {
+                            const submitButton = document.getElementById('submit-payment');
+                            if (submitButton && window.i18n && window.i18n.initialized) {
+                                const currencyInfo = window.i18n.getCurrencyInfo();
+                                const buttonText = window.i18n.t('payment.button_pay') || window.i18n.t('payment.payButton') || 'Pay';
+                                const fullButtonText = `${buttonText} ${currencyInfo.symbol}${currencyInfo.amount.toFixed(2)}`;
+                                submitButton.textContent = fullButtonText;
+                                console.log('Payment screen shown - Button updated:', fullButtonText);
+                            }
+                        }, 100);
+                    }
+                }
+            });
+        });
+        
+        // Observe the payment screen for style changes
+        const paymentScreenForObserver = document.getElementById('payment-screen');
+        if (paymentScreenForObserver) {
+            observer.observe(paymentScreenForObserver, { attributes: true, attributeFilter: ['style'] });
+        }
+        </script>
 </body>
 </html>

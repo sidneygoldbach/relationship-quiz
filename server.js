@@ -61,12 +61,19 @@ app.get('/admin/db-management.js', (req, res) => {
 });
 
 // I18n translations endpoint
-app.get('/api/translations', (req, res) => {
+app.get('/api/translations', async (req, res) => {
     try {
+        // Get quiz price from database to calculate currency conversion
+        const quizData = await quizService.getQuizMetadata(1, req.locale);
+        const basePriceUSD = quizData.price || 100; // Default to 100 cents ($1.00) if not set
+        
+        // Get currency info with converted amount
+        const currencyInfoWithAmount = req.getCurrencyInfoWithConversion(basePriceUSD);
+        
         res.json({
             locale: req.locale,
             translations: req.translations,
-            currencyInfo: req.currencyInfo
+            currencyInfo: currencyInfoWithAmount
         });
     } catch (error) {
         console.error('Error getting translations:', error);
@@ -91,21 +98,29 @@ app.get('/stripe-config', (req, res) => {
 // Create a payment intent
 app.post('/create-payment-intent', async (req, res) => {
     try {
-        const { sessionId } = req.body;
-        console.log('Creating payment intent for session:', sessionId);
+        const { sessionId, quizId = 1 } = req.body;
+        console.log('Creating payment intent for session:', sessionId, 'quiz:', quizId);
         
-        // Get currency info based on locale
-        const currencyInfo = req.currencyInfo;
-        const amountInCents = Math.round(currencyInfo.amount * 100); // Convert to cents
+        // Get quiz data to get the actual price from database (in USD cents)
+        const quizData = await quizService.getQuizData(quizId, 'en_US'); // Always get USD price from database
+        const basePriceUSD = quizData.quiz.price || 100; // Default to 100 cents ($1.00) if not set
         
-        // Create a PaymentIntent with the amount, currency, and description
+        // Convert price to local currency using conversion rates
+        const currencyInfo = req.getCurrencyInfoWithConversion(basePriceUSD);
+        const localPrice = Math.round(currencyInfo.amount * 100); // Convert to cents for Stripe
+        const localCurrency = currencyInfo.currency.toLowerCase();
+        
+        console.log(`Converting price from ${basePriceUSD} USD cents to ${localPrice} ${localCurrency.toUpperCase()} cents (rate: ${currencyInfo.rate})`);
+        
+        // Create a PaymentIntent with the converted amount and local currency
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: amountInCents,
-            currency: currencyInfo.currency.toLowerCase(),
+            amount: localPrice, // Converted price in local currency cents
+            currency: localCurrency,
             description: req.t('payment.title') || 'Relationship Quiz Results',
             metadata: {
                 sessionId: sessionId || 'unknown',
-                locale: req.locale
+                locale: req.locale,
+                quizId: quizId.toString()
             },
             automatic_payment_methods: {
                 enabled: true,
@@ -120,8 +135,8 @@ app.post('/create-payment-intent', async (req, res) => {
                 await db.savePayment(
                     sessionId,
                     paymentIntent.id,
-                    amountInCents,
-                    currencyInfo.currency.toLowerCase(),
+                    localPrice,
+                    localCurrency,
                     'pending'
                 );
                 console.log('Payment record saved to database');
@@ -147,14 +162,40 @@ app.get('/api/quiz/:quizId?', async (req, res) => {
         const quizId = parseInt(req.params.quizId) || 1;
         const locale = req.locale || 'en_US';
         
+        console.log('DEBUG - Quiz API called:', { quizId, locale });
+        
         // Get data directly from database with locale
         const questions = await quizService.getQuizQuestions(quizId, locale);
         const metadata = await quizService.getQuizMetadata(quizId, locale);
         
-        res.json({
-            quiz: metadata,
+        console.log('DEBUG - Metadata:', metadata);
+        
+        // Get base price in USD and convert to local currency
+        const basePriceUSD = metadata.price || 100; // Price from database in USD cents
+        console.log('DEBUG - Base price USD:', basePriceUSD);
+        
+        const currencyInfo = req.getCurrencyInfoWithConversion(basePriceUSD);
+        console.log('DEBUG - Currency info:', currencyInfo);
+        
+        // Add converted price information to the response
+        const responseData = {
+            quiz: {
+                ...metadata,
+                pricing: {
+                    price: Math.round(currencyInfo.amount * 100), // Local price in cents
+                    currency: currencyInfo.currency,
+                    priceInDollars: currencyInfo.amount.toFixed(2), // Local price in currency units
+                    symbol: currencyInfo.symbol,
+                    basePriceUSD: basePriceUSD, // Original USD price for reference
+                    conversionRate: currencyInfo.rate
+                }
+            },
             questions: questions
-        });
+        };
+        
+        console.log('DEBUG - Response data pricing:', responseData.quiz.pricing);
+        
+        res.json(responseData);
     } catch (error) {
         console.error('Error getting quiz data:', error);
         const errorMsg = req.t('errors.quiz_data_failed', 'Failed to get quiz data');

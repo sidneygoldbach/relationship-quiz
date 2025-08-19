@@ -209,14 +209,22 @@ class I18n {
     return this.supportedLocales;
   }
 
-  getCurrencyInfo(locale) {
+  getCurrencyInfo(locale, baseAmountUSD = null) {
     const currencyMap = {
-      'en_US': { currency: 'USD', symbol: '$', amount: 4.99 },
-      'pt_BR': { currency: 'BRL', symbol: 'R$', amount: 24.99 },
-      'es_ES': { currency: 'EUR', symbol: '€', amount: 4.49 }
+      'en_US': { currency: 'USD', symbol: '$', rate: 1 },
+      'pt_BR': { currency: 'BRL', symbol: 'R$', rate: 4 },
+      'es_ES': { currency: 'EUR', symbol: '€', rate: 0.91 }
     };
     
-    return currencyMap[locale] || currencyMap[this.defaultLocale];
+    const currencyInfo = currencyMap[locale] || currencyMap[this.defaultLocale];
+    
+    // If baseAmountUSD is provided, convert it to local currency
+    if (baseAmountUSD !== null) {
+      const convertedAmount = (baseAmountUSD / 100) * currencyInfo.rate; // Convert from cents to dollars, then apply rate
+      currencyInfo.amount = parseFloat(convertedAmount.toFixed(2));
+    }
+    
+    return currencyInfo;
   }
 }
 
@@ -230,7 +238,8 @@ function i18nMiddleware(req, res, next) {
   req.t = (key, params) => i18n.t(key, locale, params); // Usar método síncrono
   req.tAsync = async (key, params) => await i18n.translate(key, locale, params); // Método assíncrono
   req.translations = i18n.getTranslations(locale);
-  req.currencyInfo = i18n.getCurrencyInfo(locale);
+  req.currencyInfo = i18n.getCurrencyInfo(locale); // Default without conversion
+  req.getCurrencyInfoWithConversion = (baseAmountUSD) => i18n.getCurrencyInfo(locale, baseAmountUSD);
   next();
 }
 

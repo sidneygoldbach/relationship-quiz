@@ -23,6 +23,13 @@ class QuizService {
             }
 
             // Data already comes translated from database based on locale
+            
+            // Ensure price information is available
+            if (quizData.quiz && (!quizData.quiz.price || !quizData.quiz.currency)) {
+                console.warn(`Quiz ${quizId} missing price information, using defaults`);
+                quizData.quiz.price = quizData.quiz.price || 100; // Default 100 cents = $1.00
+                quizData.quiz.currency = quizData.quiz.currency || 'usd';
+            }
 
             // Cache the translated data
             this.quizCache.set(cacheKey, {

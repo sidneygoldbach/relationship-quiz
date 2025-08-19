@@ -21,6 +21,12 @@ async function loadQuizData() {
         quizQuestions = data.questions;
         quizMetadata = data.quiz;
         
+        // Store pricing information from API
+        if (data.pricing) {
+            window.quizPricing = data.pricing;
+            console.log('Quiz pricing loaded:', data.pricing);
+        }
+        
         // Load personality types
         const typesResponse = await fetch(`/api/quiz/${QUIZ_ID}/personality-types`, { headers });
         if (typesResponse.ok) {
@@ -86,7 +92,34 @@ async function initQuiz() {
     const loaded = await loadQuizData();
     if (loaded) {
         showScreen(welcomeScreen);
-    }
+    
+    // Update payment button text with correct translation
+    setTimeout(() => {
+        const submitButton = document.getElementById('submit-payment');
+        if (submitButton && window.i18n && window.i18n.initialized) {
+            let currencyInfo;
+            
+            // Use pricing from API if available, otherwise fallback to i18n
+            if (window.quizPricing) {
+                currencyInfo = {
+                    symbol: window.quizPricing.symbol,
+                    amount: parseFloat(window.quizPricing.priceInDollars),
+                    currency: window.quizPricing.currency,
+                    rate: window.quizPricing.conversionRate
+                };
+                console.log('Using converted pricing from API:', currencyInfo);
+            } else {
+                currencyInfo = window.i18n.getCurrencyInfo();
+                console.log('Using fallback pricing from i18n:', currencyInfo);
+            }
+            
+            const buttonText = window.i18n.t('payment.button_pay') || window.i18n.t('payment.payButton') || 'Pay';
+            const fullButtonText = `${buttonText} ${currencyInfo.symbol}${currencyInfo.amount.toFixed(2)}`;
+            submitButton.textContent = fullButtonText;
+            console.log('Payment button updated in showPaymentScreen:', fullButtonText);
+        }
+    }, 200);
+}
 }
 
 // Show a specific screen and hide others
