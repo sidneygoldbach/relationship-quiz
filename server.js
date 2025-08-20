@@ -74,6 +74,17 @@ app.get('/api/translations', (req, res) => {
     }
 });
 
+// Supported locales endpoint
+app.get('/api/supported-locales', async (req, res) => {
+    try {
+        const locales = await db.getSupportedLocales();
+        res.json(locales);
+    } catch (error) {
+        console.error('Error getting supported locales:', error);
+        res.status(500).json({ error: 'Failed to get supported locales' });
+    }
+});
+
 // Stripe configuration endpoint
 app.get('/stripe-config', (req, res) => {
     try {

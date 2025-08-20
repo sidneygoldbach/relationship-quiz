@@ -68,22 +68,26 @@
         // Initialize i18n and set up language switcher
         document.addEventListener('DOMContentLoaded', function() {
             // Wait for i18n to initialize
-            setTimeout(() => {
-                // Add language switcher to the welcome screen
-                const switcherContainer = document.getElementById('language-switcher-container');
-                if (switcherContainer && window.i18n) {
-                    const switcher = window.i18n.createLanguageSwitcher();
-                    switcherContainer.appendChild(switcher);
-                }
-
-                // Set payment button text with currency
-                const submitButton = document.getElementById('submit-payment');
-                if (submitButton && window.i18n && window.i18n.initialized) {
-                    const currencyInfo = window.i18n.getCurrencyInfo();
-                    submitButton.textContent = `${window.i18n.t('payment.payButton')} ${currencyInfo.symbol}${currencyInfo.amount.toFixed(2)}`;
-                }
+            setTimeout(async () => {
+                await setupUIElements();
             }, 100);
         });
+
+        async function setupUIElements() {
+            // Add language switcher to the welcome screen
+            const switcherContainer = document.getElementById('language-switcher-container');
+            if (switcherContainer && window.i18n) {
+                const switcher = await window.i18n.createLanguageSwitcher();
+                switcherContainer.appendChild(switcher);
+            }
+
+            // Set payment button text with currency
+            const submitButton = document.getElementById('submit-payment');
+            if (submitButton && window.i18n && window.i18n.initialized) {
+                const currencyInfo = window.i18n.getCurrencyInfo();
+                submitButton.textContent = `${window.i18n.t('payment.payButton')} ${currencyInfo.symbol}${currencyInfo.amount.toFixed(2)}`;
+            }
+        }
     </script>
 </body>
 </html>

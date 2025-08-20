@@ -127,22 +127,55 @@ class I18nFrontend {
         return this.locale;
     }
 
-    getSupportedLocales() {
-        return [
-            { code: 'en_US', name: 'English', flag: '🇺🇸' },
-            { code: 'pt_BR', name: 'Português (Brasil)', flag: '🇧🇷' }
-        ];
+    async getSupportedLocales() {
+        try {
+            const response = await fetch('/api/supported-locales');
+            if (response.ok) {
+                return await response.json();
+            } else {
+                console.warn('Failed to fetch supported locales from API, using fallback');
+                return [
+                    { code: 'en_US', name: 'English', flag: '🇺🇸' },
+                    { code: 'pt_BR', name: 'Português (Brasil)', flag: '🇧🇷' },
+                    { code: 'es_ES', name: 'Español', flag: '🇪🇸' }
+                ];
+            }
+        } catch (error) {
+            console.error('Error fetching supported locales:', error);
+            return [
+                { code: 'en_US', name: 'English', flag: '🇺🇸' },
+                { code: 'pt_BR', name: 'Português (Brasil)', flag: '🇧🇷' },
+                { code: 'es_ES', name: 'Español', flag: '🇪🇸' }
+            ];
+        }
     }
 
-    createLanguageSwitcher() {
+    async createLanguageSwitcher() {
         const switcher = document.createElement('div');
         switcher.className = 'language-switcher';
-        switcher.innerHTML = `
-            <select id="locale-select" class="locale-select">
-                <option value="en_US" ${this.locale === 'en_US' ? 'selected' : ''}>🇺🇸 English</option>
-                <option value="pt_BR" ${this.locale === 'pt_BR' ? 'selected' : ''}>🇧🇷 Português</option>
-            </select>
-        `;
+        
+        try {
+            const locales = await this.getSupportedLocales();
+            const options = locales.map(locale => 
+                `<option value="${locale.code}" ${this.locale === locale.code ? 'selected' : ''}>${locale.flag} ${locale.name}</option>`
+            ).join('');
+            
+            switcher.innerHTML = `
+                <select id="locale-select" class="locale-select">
+                    ${options}
+                </select>
+            `;
+        } catch (error) {
+            console.error('Error creating language switcher:', error);
+            // Fallback to hardcoded options
+            switcher.innerHTML = `
+                <select id="locale-select" class="locale-select">
+                    <option value="en_US" ${this.locale === 'en_US' ? 'selected' : ''}>🇺🇸 English</option>
+                    <option value="pt_BR" ${this.locale === 'pt_BR' ? 'selected' : ''}>🇧🇷 Português</option>
+                    <option value="es_ES" ${this.locale === 'es_ES' ? 'selected' : ''}>🇪🇸 Español</option>
+                </select>
+            `;
+        }
 
         const select = switcher.querySelector('#locale-select');
         select.addEventListener('change', (e) => {

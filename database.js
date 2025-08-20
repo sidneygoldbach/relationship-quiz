@@ -1738,6 +1738,41 @@ const dbHelpers = {
       });
     }
   },
+
+  async getSupportedLocales() {
+    try {
+      if (dbType === 'postgresql') {
+        const result = await pool.query(
+          'SELECT DISTINCT country as code, country as name, country as flag FROM currencies WHERE country IS NOT NULL ORDER BY country'
+        );
+        return result.rows.map(row => ({
+          code: row.code,
+          name: row.code === 'en_US' ? 'English' : row.code === 'pt_BR' ? 'Português (Brasil)' : row.code === 'es_ES' ? 'Español' : row.name,
+          flag: row.code === 'en_US' ? '🇺🇸' : row.code === 'pt_BR' ? '🇧🇷' : row.code === 'es_ES' ? '🇪🇸' : '🌐'
+        }));
+      } else {
+        return new Promise((resolve, reject) => {
+          pool.all(
+            'SELECT DISTINCT country as code, country as name, country as flag FROM currencies WHERE country IS NOT NULL ORDER BY country',
+            (err, rows) => {
+              if (err) reject(err);
+              else {
+                const locales = (rows || []).map(row => ({
+                  code: row.code,
+                  name: row.code === 'en_US' ? 'English' : row.code === 'pt_BR' ? 'Português (Brasil)' : row.code === 'es_ES' ? 'Español' : row.name,
+                  flag: row.code === 'en_US' ? '🇺🇸' : row.code === 'pt_BR' ? '🇧🇷' : row.code === 'es_ES' ? '🇪🇸' : '🌐'
+                }));
+                resolve(locales);
+              }
+            }
+          );
+        });
+      }
+    } catch (error) {
+      console.error('Error getting supported locales:', error);
+      throw error;
+    }
+  },
 };
 
 module.exports = {
