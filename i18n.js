@@ -35,27 +35,27 @@ class I18n {
     try {
       if (dbType === 'postgresql') {
         const result = await pool.query(
-          'SELECT country, currency, symbol, conversion2us FROM currencies WHERE country IS NOT NULL'
+          'SELECT locale, currency, symbol, conversion2us FROM currencies WHERE locale IS NOT NULL'
         );
         result.rows.forEach(row => {
-          this.currencyData[row.country] = {
+          this.currencyData[row.locale] = {
             currency: row.currency,
             symbol: row.symbol,
-            amount: parseFloat(row.conversion2us)
+            conversionRate: parseFloat(row.conversion2us)
           };
         });
       } else {
         await new Promise((resolve, reject) => {
           pool.all(
-            'SELECT country, currency, symbol, amount FROM currencies WHERE country IS NOT NULL',
+            'SELECT locale, currency, symbol, amount FROM currencies WHERE locale IS NOT NULL',
             (err, rows) => {
               if (err) reject(err);
               else {
                 (rows || []).forEach(row => {
-                  this.currencyData[row.country] = {
+                  this.currencyData[row.locale] = {
                     currency: row.currency,
                     symbol: row.symbol,
-                    amount: parseFloat(row.amount)
+                    conversionRate: parseFloat(row.amount)
                   };
                 });
                 resolve();
@@ -264,11 +264,17 @@ class I18n {
     return this.supportedLocales;
   }
 
-  getCurrencyInfo(locale) {
-    return this.currencyData[locale] || this.currencyData[this.defaultLocale] || {
+  getCurrencyInfo(locale, quizPrice = 1.00) {
+    const currencyData = this.currencyData[locale] || this.currencyData[this.defaultLocale] || {
       currency: 'USD',
       symbol: '$',
-      amount: 4.99
+      conversionRate: 1.0
+    };
+    
+    return {
+      currency: currencyData.currency,
+      symbol: currencyData.symbol,
+      amount: quizPrice * currencyData.conversionRate
     };
   }
 }
@@ -283,7 +289,12 @@ function i18nMiddleware(req, res, next) {
   req.t = (key, params) => i18n.t(key, locale, params); // Usar método síncrono
   req.tAsync = async (key, params) => await i18n.translate(key, locale, params); // Método assíncrono
   req.translations = i18n.getTranslations(locale);
-  req.currencyInfo = i18n.getCurrencyInfo(locale);
+  
+  // Get quiz price from query parameter or default to 1.00 USD
+  const quizId = req.query.quiz || req.params.quizId || 1;
+  const baseQuizPrice = 1.00; // Base price in USD, will be multiplied by conversion rate
+  
+  req.currencyInfo = i18n.getCurrencyInfo(locale, baseQuizPrice);
   next();
 }
 
