@@ -5,7 +5,7 @@ let pool;
 let dbType = 'sqlite'; // Default to SQLite
 
 // Check if PostgreSQL is available and configured
-if (process.env.DB_HOST && process.env.DB_USER && process.env.DB_PASSWORD) {
+if (process.env.DB_HOST && process.env.DB_USER && process.env.DB_PASSWORD !== undefined) {
     try {
         const { Pool } = require('pg');
         pool = new Pool({
@@ -1739,28 +1739,185 @@ const dbHelpers = {
     }
   },
 
+  // Quiz Images functions
+  async createQuizImage(quizId, imageUrl, imageType, title = null, description = null, displayOrder = 0) {
+    try {
+      if (dbType === 'postgresql') {
+        const result = await pool.query(`
+          INSERT INTO quiz_images (quiz_id, image_url, image_type, title, description, display_order)
+          VALUES ($1, $2, $3, $4, $5, $6)
+          RETURNING *
+        `, [quizId, imageUrl, imageType, title, description, displayOrder]);
+        return result.rows[0];
+      } else {
+        return new Promise((resolve, reject) => {
+          pool.run(`
+            INSERT INTO quiz_images (quiz_id, image_url, image_type, title, description, display_order)
+            VALUES (?, ?, ?, ?, ?, ?)
+          `, [quizId, imageUrl, imageType, title, description, displayOrder], function(err) {
+            if (err) {
+              reject(err);
+            } else {
+              pool.get('SELECT * FROM quiz_images WHERE id = ?', [this.lastID], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+              });
+            }
+          });
+        });
+      }
+    } catch (error) {
+      console.error('Error creating quiz image:', error);
+      throw error;
+    }
+  },
+
+  async getQuizImagesByQuizId(quizId, imageType = null) {
+    try {
+      let query, params;
+      
+      if (imageType) {
+        query = `SELECT * FROM quiz_images WHERE quiz_id = ? AND image_type = ? AND is_active = ? ORDER BY display_order, id`;
+        params = [quizId, imageType, dbType === 'postgresql' ? true : 1];
+      } else {
+        query = `SELECT * FROM quiz_images WHERE quiz_id = ? AND is_active = ? ORDER BY display_order, id`;
+        params = [quizId, dbType === 'postgresql' ? true : 1];
+      }
+
+      if (dbType === 'postgresql') {
+        let paramIndex = 0;
+        query = query.replace(/\?/g, () => `$${++paramIndex}`);
+        const result = await pool.query(query, params);
+        return result.rows;
+      } else {
+        return new Promise((resolve, reject) => {
+          pool.all(query, params, (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows || []);
+          });
+        });
+      }
+    } catch (error) {
+      console.error('Error getting quiz images:', error);
+      throw error;
+    }
+  },
+
+  // Coach functions
+  async getAllCoaches() {
+    try {
+      if (dbType === 'postgresql') {
+        const result = await pool.query(`
+          SELECT id, name, title, description, price, currency, coach_type, coach_category, coach_title, coach_description, icon_url
+          FROM quizzes 
+          WHERE is_active = true
+          ORDER BY coach_category, coach_type, name
+        `);
+        return result.rows;
+      } else {
+        return new Promise((resolve, reject) => {
+          pool.all(`
+            SELECT id, name, title, description, price, currency, coach_type, coach_category, coach_title, coach_description, icon_url
+            FROM quizzes 
+            WHERE is_active = 1
+            ORDER BY coach_category, coach_type, name
+          `, (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows || []);
+          });
+        });
+      }
+    } catch (error) {
+      console.error('Error getting all coaches:', error);
+      throw error;
+    }
+  },
+
+  async getCoachesByCategory(category) {
+    try {
+      if (dbType === 'postgresql') {
+        const result = await pool.query(`
+          SELECT id, name, title, description, price, currency, coach_type, coach_category, coach_title, coach_description, icon_url
+          FROM quizzes 
+          WHERE coach_category = $1 AND is_active = true
+          ORDER BY coach_type, name
+        `, [category]);
+        return result.rows;
+      } else {
+        return new Promise((resolve, reject) => {
+          pool.all(`
+            SELECT id, name, title, description, price, currency, coach_type, coach_category, coach_title, coach_description, icon_url
+            FROM quizzes 
+            WHERE coach_category = ? AND is_active = 1
+            ORDER BY coach_type, name
+          `, [category], (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows || []);
+          });
+        });
+      }
+    } catch (error) {
+      console.error('Error getting coaches by category:', error);
+      throw error;
+    }
+  },
+
+  async updateQuizCoachInfo(quizId, coachType, coachCategory, coachTitle, coachDescription, iconUrl) {
+    try {
+      if (dbType === 'postgresql') {
+        const result = await pool.query(`
+          UPDATE quizzes 
+          SET coach_type = $1, coach_category = $2, coach_title = $3, coach_description = $4, icon_url = $5, updated_at = CURRENT_TIMESTAMP
+          WHERE id = $6
+          RETURNING *
+        `, [coachType, coachCategory, coachTitle, coachDescription, iconUrl, quizId]);
+        return result.rows[0];
+      } else {
+        return new Promise((resolve, reject) => {
+          pool.run(`
+            UPDATE quizzes 
+            SET coach_type = ?, coach_category = ?, coach_title = ?, coach_description = ?, icon_url = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+          `, [coachType, coachCategory, coachTitle, coachDescription, iconUrl, quizId], function(err) {
+            if (err) {
+              reject(err);
+            } else {
+              pool.get('SELECT * FROM quizzes WHERE id = ?', [quizId], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+              });
+            }
+          });
+        });
+      }
+    } catch (error) {
+      console.error('Error updating quiz coach info:', error);
+      throw error;
+    }
+  },
+
   async getSupportedLocales() {
     try {
       if (dbType === 'postgresql') {
         const result = await pool.query(
-          'SELECT DISTINCT country as code, country as name, country as flag FROM currencies WHERE country IS NOT NULL ORDER BY country'
+          'SELECT locale as code, country as name FROM currencies WHERE country IS NOT NULL ORDER BY country'
         );
         return result.rows.map(row => ({
           code: row.code,
-          name: row.code === 'en_US' ? 'English' : row.code === 'pt_BR' ? 'Português (Brasil)' : row.code === 'es_ES' ? 'Español' : row.name,
-          flag: row.code === 'en_US' ? '🇺🇸' : row.code === 'pt_BR' ? '🇧🇷' : row.code === 'es_ES' ? '🇪🇸' : '🌐'
+          name: row.name || row.code,
+          flag: '🌐'
         }));
       } else {
         return new Promise((resolve, reject) => {
           pool.all(
-            'SELECT DISTINCT country as code, country as name, country as flag FROM currencies WHERE country IS NOT NULL ORDER BY country',
+            'SELECT country as code, name, flag FROM currencies WHERE country IS NOT NULL ORDER BY country',
             (err, rows) => {
               if (err) reject(err);
               else {
                 const locales = (rows || []).map(row => ({
                   code: row.code,
-                  name: row.code === 'en_US' ? 'English' : row.code === 'pt_BR' ? 'Português (Brasil)' : row.code === 'es_ES' ? 'Español' : row.name,
-                  flag: row.code === 'en_US' ? '🇺🇸' : row.code === 'pt_BR' ? '🇧🇷' : row.code === 'es_ES' ? '🇪🇸' : '🌐'
+                  name: row.name || row.code,
+                  flag: row.flag || '🌐'
                 }));
                 resolve(locales);
               }

@@ -133,20 +133,12 @@ class I18nFrontend {
             if (response.ok) {
                 return await response.json();
             } else {
-                console.warn('Failed to fetch supported locales from API, using fallback');
-                return [
-                    { code: 'en_US', name: 'English', flag: '🇺🇸' },
-                    { code: 'pt_BR', name: 'Português (Brasil)', flag: '🇧🇷' },
-                    { code: 'es_ES', name: 'Español', flag: '🇪🇸' }
-                ];
+                console.error('Failed to fetch supported locales from API');
+                throw new Error('API request failed');
             }
         } catch (error) {
             console.error('Error fetching supported locales:', error);
-            return [
-                { code: 'en_US', name: 'English', flag: '🇺🇸' },
-                { code: 'pt_BR', name: 'Português (Brasil)', flag: '🇧🇷' },
-                { code: 'es_ES', name: 'Español', flag: '🇪🇸' }
-            ];
+            throw error;
         }
     }
 
@@ -167,14 +159,13 @@ class I18nFrontend {
             `;
         } catch (error) {
             console.error('Error creating language switcher:', error);
-            // Fallback to hardcoded options
+            // Show error message instead of fallback
             switcher.innerHTML = `
-                <select id="locale-select" class="locale-select">
-                    <option value="en_US" ${this.locale === 'en_US' ? 'selected' : ''}>🇺🇸 English</option>
-                    <option value="pt_BR" ${this.locale === 'pt_BR' ? 'selected' : ''}>🇧🇷 Português</option>
-                    <option value="es_ES" ${this.locale === 'es_ES' ? 'selected' : ''}>🇪🇸 Español</option>
-                </select>
+                <div class="locale-error">
+                    <span>⚠️ Unable to load language options</span>
+                </div>
             `;
+            return switcher;
         }
 
         const select = switcher.querySelector('#locale-select');

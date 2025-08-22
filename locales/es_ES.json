@@ -3,6 +3,9 @@
     "title": "Quiz de Personalidad en Relaciones",
     "description": "Descubre tu tipo de personalidad en las relaciones",
     "start_button": "Comenzar Quiz",
+    "nextQuestion": "Siguiente →",
+    "previousQuestion": "← Atrás",
+    "finish_quiz": "Finalizar Quiz",
     "next_button": "Siguiente",
     "previous_button": "Anterior",
     "submit_button": "Enviar",
@@ -34,6 +37,13 @@
       "q5_option_3": "Su estabilidad emocional",
       "q5_option_4": "Su pasión y energía"
     }
+  },
+  "coach_selection": {
+    "title": "Elige tu Coach Personal",
+    "description": "Selecciona el tipo de coach que mejor se adapte a tus necesidades actuales",
+    "back_button": "Volver",
+    "loading": "Cargando coaches...",
+    "select_coach_button": "Seleccionar Coach"
   },
   "personality_types": {
     "romantic": {
@@ -68,8 +78,13 @@
       "relationship_tips": "Consejos para mejorar tu relación"
     },
     "pay_button": "Pagar Ahora",
+    "button_pay": "Pagar",
+    "payButton": "Pagar",
     "processing": "Procesando pago...",
+    "processing_wait": "El pago se está procesando. Por favor, espere...",
     "success": "¡Pago exitoso! Redirigiendo a tus resultados...",
+    "success_saving": "¡Pago exitoso! Guardando tus resultados...",
+    "success_save_failed": "Pago exitoso, pero fallo al guardar resultados. Contacta soporte.",
     "error": "Error en el pago. Por favor, inténtalo de nuevo."
   },
   "common": {
@@ -87,6 +102,17 @@
     "finish": "Finalizar",
     "email_placeholder": "Ingresa tu email",
     "required_field": "Este campo es obligatorio",
-    "invalid_email": "Email inválido"
+    "invalid_email": "Email inválido",
+    "reload_page": "Recargar Página"
+  },
+  "errors": {
+    "generic": "Algo salió mal. Inténtalo de nuevo.",
+    "network": "Error de red. Verifica tu conexión.",
+    "validation": "Por favor, completa todos los campos obligatorios.",
+    "payment": "Fallo en el procesamiento del pago. Inténtalo de nuevo.",
+    "payment_init_failed": "Fallo al inicializar sistema de pago. Recarga la página.",
+    "quiz": "Fallo al calcular resultados del quiz. Inténtalo de nuevo.",
+    "quiz_not_loaded": "Datos del quiz no cargados. Recarga la página.",
+    "quiz_data_failed": "Fallo al cargar datos del quiz"
   }
 }

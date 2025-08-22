@@ -23,6 +23,16 @@
             <button id="start-btn" class="btn" data-i18n="quiz.startButton">Start Quiz</button>
         </div>
 
+        <div id="coach-selection-screen" class="screen">
+            <div id="language-switcher-container-coach"></div>
+            <h1 data-i18n="coach.title">Choose Your Coach</h1>
+            <p data-i18n="coach.description">Select the type of coaching that best fits your needs:</p>
+            <div id="coaches-container" class="coaches-grid">
+                <!-- Coaches will be loaded dynamically -->
+            </div>
+            <button id="back-to-welcome-btn" class="btn secondary-btn" data-i18n="coach.backButton">← Back</button>
+        </div>
+
         <div id="quiz-screen" class="screen">
             <div id="question-container">
                 <h2 id="question-text"></h2>
@@ -79,6 +89,13 @@
             if (switcherContainer && window.i18n) {
                 const switcher = await window.i18n.createLanguageSwitcher();
                 switcherContainer.appendChild(switcher);
+            }
+
+            // Add language switcher to the coach selection screen
+            const coachSwitcherContainer = document.getElementById('language-switcher-container-coach');
+            if (coachSwitcherContainer && window.i18n) {
+                const coachSwitcher = await window.i18n.createLanguageSwitcher();
+                coachSwitcherContainer.appendChild(coachSwitcher);
             }
 
             // Set payment button text with currency

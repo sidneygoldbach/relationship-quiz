@@ -14,7 +14,15 @@
     "edit": "Editar",
     "add": "Adicionar",
     "yes": "Sim",
-    "no": "Não"
+    "no": "Não",
+    "reload_page": "Recarregar Página"
+  },
+  "coach": {
+    "title": "Escolha Seu Coach",
+    "description": "Selecione o tipo de coaching que melhor se adequa às suas necessidades:",
+    "backButton": "← Voltar",
+    "loading": "Carregando coaches...",
+    "selectCoach": "Selecionar este coach"
   },
   "quiz": {
     "title": "Quiz de Personalidade para Relacionamentos",
@@ -23,8 +31,9 @@
     "startButton": "Iniciar Quiz",
     "question": "Pergunta",
     "of": "de",
-    "previousQuestion": "Pergunta Anterior",
-    "nextQuestion": "Próxima Pergunta",
+    "previousQuestion": "← Voltar",
+    "nextQuestion": "Próximo →",
+    "finish_quiz": "Finalizar Quiz",
     "calculateResults": "Calcular Resultados",
     "retakeQuiz": "Refazer Quiz",
     "shareResults": "Compartilhar Resultados"
@@ -46,9 +55,13 @@
     "amount": "Valor",
     "processing": "Processando...",
     "processing_message": "O pagamento está sendo processado. Aguarde...",
+    "processing_wait": "Pagamento sendo processado. Por favor, aguarde...",
     "failed": "Falha no pagamento",
     "button_pay": "Pagar",
+    "payButton": "Pagar",
     "success": "Pagamento realizado com sucesso! Seus resultados estão sendo preparados...",
+    "success_saving": "Pagamento realizado com sucesso! Salvando seus resultados...",
+    "success_save_failed": "Pagamento realizado com sucesso, mas falha ao salvar resultados. Entre em contato com o suporte.",
     "save_success": "Seus resultados do quiz foram salvos com sucesso!",
     "save_warning": "Pagamento realizado com sucesso, mas houve um problema ao salvar seus resultados. Entre em contato com o suporte se necessário."
   },
@@ -150,6 +163,9 @@
     "network": "Erro de rede. Verifique sua conexão.",
     "validation": "Por favor, preencha todos os campos obrigatórios.",
     "payment": "Falha no processamento do pagamento. Tente novamente.",
-    "quiz": "Falha ao calcular resultados do quiz. Tente novamente."
+    "payment_init_failed": "Falha ao inicializar sistema de pagamento. Recarregue a página.",
+    "quiz": "Falha ao calcular resultados do quiz. Tente novamente.",
+    "quiz_not_loaded": "Dados do quiz não carregados. Recarregue a página.",
+    "quiz_data_failed": "Falha ao carregar dados do quiz"
   }
 }

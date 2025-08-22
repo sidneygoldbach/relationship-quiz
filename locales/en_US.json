@@ -14,7 +14,15 @@
     "edit": "Edit",
     "add": "Add",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "reload_page": "Reload Page"
+  },
+  "coach": {
+    "title": "Choose Your Coach",
+    "description": "Select the type of coaching that best fits your needs:",
+    "backButton": "← Back",
+    "loading": "Loading coaches...",
+    "selectCoach": "Select this coach"
   },
   "quiz": {
     "title": "Relationship Personality Quiz",
@@ -23,8 +31,9 @@
     "startButton": "Start Quiz",
     "question": "Question",
     "of": "of",
-    "previousQuestion": "Previous Question",
-    "nextQuestion": "Next Question",
+    "previousQuestion": "← Back",
+    "nextQuestion": "Next →",
+    "finish_quiz": "Finish Quiz",
     "calculateResults": "Calculate Results",
     "retakeQuiz": "Take Quiz Again",
     "shareResults": "Share Results"
@@ -46,9 +55,13 @@
     "amount": "Amount",
     "processing": "Processing...",
     "processing_message": "Payment is processing. Please wait...",
+    "processing_wait": "Payment is processing. Please wait...",
     "failed": "Payment failed",
     "button_pay": "Pay",
+    "payButton": "Pay",
     "success": "Payment successful! Your results are being prepared...",
+    "success_saving": "Payment successful! Saving your results...",
+    "success_save_failed": "Payment successful, but failed to save results. Please contact support.",
     "save_success": "Your quiz results have been saved successfully!",
     "save_warning": "Payment successful, but there was an issue saving your results. Please contact support if needed."
   },
@@ -150,6 +163,9 @@
     "network": "Network error. Please check your connection.",
     "validation": "Please fill in all required fields.",
     "payment": "Payment processing failed. Please try again.",
-    "quiz": "Failed to calculate quiz results. Please try again."
+    "payment_init_failed": "Failed to initialize payment system. Please refresh the page.",
+    "quiz": "Failed to calculate quiz results. Please try again.",
+    "quiz_not_loaded": "Quiz data not loaded. Please refresh the page.",
+    "quiz_data_failed": "Failed to load quiz data"
   }
 }

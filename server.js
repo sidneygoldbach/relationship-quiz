@@ -85,6 +85,54 @@ app.get('/api/supported-locales', async (req, res) => {
     }
 });
 
+// Coaches endpoint
+app.get('/api/coaches', async (req, res) => {
+    try {
+        const { category } = req.query;
+        let coaches;
+        
+        if (category) {
+            coaches = await db.getCoachesByCategory(category);
+        } else {
+            coaches = await db.getAllCoaches();
+        }
+        
+        // Get images for each coach
+        const coachesWithImages = await Promise.all(
+            coaches.map(async (coach) => {
+                const images = await db.getQuizImagesByQuizId(coach.id);
+                return {
+                    ...coach,
+                    images: images || []
+                };
+            })
+        );
+        
+        res.json(coachesWithImages);
+    } catch (error) {
+        console.error('Error getting coaches:', error);
+        res.status(500).json({ error: 'Failed to get coaches' });
+    }
+});
+
+// Coach categories endpoint
+app.get('/api/coach-categories', async (req, res) => {
+    try {
+        const coaches = await db.getAllCoaches();
+        const categories = [...new Set(coaches.map(coach => coach.coach_category))]
+            .filter(category => category)
+            .map(category => ({
+                value: category,
+                label: category.charAt(0).toUpperCase() + category.slice(1)
+            }));
+        
+        res.json(categories);
+    } catch (error) {
+        console.error('Error getting coach categories:', error);
+        res.status(500).json({ error: 'Failed to get coach categories' });
+    }
+});
+
 // Stripe configuration endpoint
 app.get('/stripe-config', (req, res) => {
     try {

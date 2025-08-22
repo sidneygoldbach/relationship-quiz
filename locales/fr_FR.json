@@ -1,0 +1,104 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "continue": "Continuer",
+    "back": "Retour",
+    "next": "Suivant",
+    "submit": "Soumettre",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "save": "Sauvegarder",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "yes": "Oui",
+    "no": "Non",
+    "reload_page": "Recharger la Page"
+  },
+  "coach": {
+    "title": "Choisissez Votre Coach",
+    "description": "Sélectionnez le type de coaching qui correspond le mieux à vos besoins :",
+    "backButton": "← Retour",
+    "loading": "Chargement des coaches...",
+    "selectCoach": "Sélectionner ce coach"
+  },
+  "quiz": {
+    "title": "Quiz de Personnalité Relationnelle",
+    "subtitle": "Découvrez Votre Style Relationnel",
+    "description": "Répondez à notre quiz complet pour comprendre votre personnalité relationnelle et recevez des conseils personnalisés pour construire des connexions plus fortes.",
+    "startButton": "Commencer le Quiz",
+    "question": "Question",
+    "of": "sur",
+    "previousQuestion": "← Précédent",
+    "nextQuestion": "Suivant →",
+    "finish_quiz": "Terminer le Quiz",
+    "calculateResults": "Calculer les Résultats",
+    "retakeQuiz": "Refaire le Quiz",
+    "shareResults": "Partager les Résultats"
+  },
+  "results": {
+    "title": "Vos Résultats de Personnalité Relationnelle",
+    "personalityInsights": "Aperçus de Personnalité",
+    "relationshipTips": "Conseils pour Améliorer les Relations",
+    "shareOnFacebook": "Partager sur Facebook",
+    "takeQuizAgain": "Refaire le Quiz",
+    "yourType": "Votre Type",
+    "score": "Score",
+    "maxScore": "Score Maximum",
+    "percentage": "Pourcentage"
+  },
+  "payment": {
+    "title": "Complétez Votre Achat",
+    "description": "Paiement sécurisé pour débloquer vos insights relationnels personnalisés",
+    "amount": "Montant",
+    "processing": "Traitement...",
+    "processing_message": "Le paiement est en cours de traitement. Veuillez patienter...",
+    "processing_wait": "Paiement en cours de traitement. Veuillez patienter...",
+    "failed": "Échec du paiement",
+    "button_pay": "Payer",
+    "payButton": "Payer",
+    "success": "Paiement réussi ! Vos résultats sont en préparation...",
+    "success_saving": "Paiement réussi ! Sauvegarde de vos résultats...",
+    "success_save_failed": "Paiement réussi, mais échec de la sauvegarde des résultats. Contactez le support.",
+    "save_success": "Vos résultats de quiz ont été sauvegardés avec succès !",
+    "save_warning": "Paiement réussi, mais il y a eu un problème lors de la sauvegarde de vos résultats. Contactez le support si nécessaire."
+  },
+  "personality_types": {
+    "communicator": {
+      "title": "Le Communicateur",
+      "description": "Vous valorisez la communication ouverte et honnête dans les relations. Vous êtes direct sur vos besoins et sentiments, ce qui aide à prévenir les malentendus."
+    },
+    "harmonizer": {
+      "title": "L'Harmonisateur",
+      "description": "Vous excellez dans la création d'équilibre et de paix dans les relations. Votre capacité à voir plusieurs perspectives fait de vous un médiateur naturel et un partenaire solidaire."
+    },
+    "independent": {
+      "title": "L'Indépendant",
+      "description": "Vous valorisez l'autonomie et la croissance personnelle dans les relations. Vous apportez un fort sens de soi et des limites claires à vos connexions."
+    },
+    "loyalist": {
+      "title": "Le Loyaliste",
+      "description": "Vous priorisez la confiance et l'engagement dans les relations. Votre fiabilité et dévouement créent une base sécurisée pour des connexions profondes."
+    }
+  },
+  "admin": {
+    "title": "Panneau d'Administration",
+    "stats": "Statistiques",
+    "users": "Utilisateurs",
+    "quizzes": "Quiz",
+    "results": "Résultats",
+    "payments": "Paiements"
+  },
+  "errors": {
+    "generic": "Quelque chose s'est mal passé. Réessayez.",
+    "network": "Erreur réseau. Vérifiez votre connexion.",
+    "validation": "Veuillez remplir tous les champs obligatoires.",
+    "payment": "Échec du traitement du paiement. Réessayez.",
+    "payment_init_failed": "Échec de l'initialisation du système de paiement. Rechargez la page.",
+    "quiz": "Échec du calcul des résultats du quiz. Réessayez.",
+    "quiz_not_loaded": "Données du quiz non chargées. Rechargez la page.",
+    "quiz_data_failed": "Échec du chargement des données du quiz"
+  }
+}

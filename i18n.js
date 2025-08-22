@@ -1,20 +1,72 @@
 const fs = require('fs');
 const path = require('path');
 
-const { pool, dbType } = require('./database');
+const { pool, dbType, getSupportedLocales } = require('./database');
 
 class I18n {
   constructor() {
     this.translations = {};
     this.defaultLocale = 'en_US';
-    this.supportedLocales = ['en_US', 'pt_BR', 'es_ES'];
+    this.supportedLocales = [];
+    this.currencyData = {};
     this.initialized = false;
   }
 
   async initialize() {
     if (!this.initialized) {
+      await this.loadSupportedLocales();
+      await this.loadCurrencyData();
       await this.loadTranslations();
       this.initialized = true;
+    }
+  }
+
+  async loadSupportedLocales() {
+    try {
+      const locales = await getSupportedLocales();
+      this.supportedLocales = locales.map(locale => locale.code);
+    } catch (error) {
+      console.error('Error loading supported locales:', error);
+      this.supportedLocales = ['en_US']; // Minimal fallback
+    }
+  }
+
+  async loadCurrencyData() {
+    try {
+      if (dbType === 'postgresql') {
+        const result = await pool.query(
+          'SELECT country, currency, symbol, conversion2us FROM currencies WHERE country IS NOT NULL'
+        );
+        result.rows.forEach(row => {
+          this.currencyData[row.country] = {
+            currency: row.currency,
+            symbol: row.symbol,
+            amount: parseFloat(row.conversion2us)
+          };
+        });
+      } else {
+        await new Promise((resolve, reject) => {
+          pool.all(
+            'SELECT country, currency, symbol, amount FROM currencies WHERE country IS NOT NULL',
+            (err, rows) => {
+              if (err) reject(err);
+              else {
+                (rows || []).forEach(row => {
+                  this.currencyData[row.country] = {
+                    currency: row.currency,
+                    symbol: row.symbol,
+                    amount: parseFloat(row.amount)
+                  };
+                });
+                resolve();
+              }
+            }
+          );
+        });
+      }
+    } catch (error) {
+      console.error('Error loading currency data:', error);
+      this.currencyData = {};
     }
   }
 
@@ -115,10 +167,13 @@ class I18n {
         }
       }
       
-      // Check for language matches (pt, en)
+      // Check for language matches dynamically
       const language = acceptLanguage.split(',')[0].split('-')[0].toLowerCase();
-      if (language === 'pt') return 'pt_BR';
-      if (language === 'en') return 'en_US';
+      for (const locale of this.supportedLocales) {
+        if (locale.toLowerCase().startsWith(language + '_')) {
+          return locale;
+        }
+      }
     }
     
     return this.defaultLocale;
@@ -210,13 +265,11 @@ class I18n {
   }
 
   getCurrencyInfo(locale) {
-    const currencyMap = {
-      'en_US': { currency: 'USD', symbol: '$', amount: 4.99 },
-      'pt_BR': { currency: 'BRL', symbol: 'R$', amount: 24.99 },
-      'es_ES': { currency: 'EUR', symbol: '€', amount: 4.49 }
+    return this.currencyData[locale] || this.currencyData[this.defaultLocale] || {
+      currency: 'USD',
+      symbol: '$',
+      amount: 4.99
     };
-    
-    return currencyMap[locale] || currencyMap[this.defaultLocale];
   }
 }
 
