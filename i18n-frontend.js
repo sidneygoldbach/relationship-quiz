@@ -54,6 +54,7 @@ class I18nFrontend {
 
     t(key, params = {}) {
         if (!this.initialized) {
+            console.log('I18n not initialized, returning key:', key);
             return key;
         }
 
@@ -64,6 +65,7 @@ class I18nFrontend {
             if (translation && typeof translation === 'object' && translation[k]) {
                 translation = translation[k];
             } else {
+                console.log('Translation not found for key:', key, 'at level:', k);
                 return key; // Return key if translation not found
             }
         }
@@ -75,6 +77,7 @@ class I18nFrontend {
             });
         }
         
+        console.log('Translation found but not string for key:', key, 'value:', translation);
         return key;
     }
 

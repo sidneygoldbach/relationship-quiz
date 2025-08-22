@@ -178,33 +178,52 @@ let userPersonalityType = null;
 
 // Initialize the quiz
 async function initQuiz() {
-    currentQuestionIndex = 0;
-    userAnswers = [];
-    quizCompleted = false;
-    userPersonalityType = null;
-    
-    // Check if quiz is pre-selected via URL parameter
-    const preSelectedQuizId = getQuizIdFromURL();
-    
-    if (preSelectedQuizId) {
-        // Quiz pre-selected, load quiz directly
-        QUIZ_ID = preSelectedQuizId;
-        console.log('Pre-selected quiz:', preSelectedQuizId, 'Using quiz ID:', QUIZ_ID);
-        const loaded = await loadQuizData();
-        if (loaded) {
-            showScreen(welcomeScreen);
+    try {
+        // Wait for i18n to be initialized
+        if (window.i18n && !window.i18n.initialized) {
+            await new Promise(resolve => {
+                const checkI18n = () => {
+                    if (window.i18n && window.i18n.initialized) {
+                        resolve();
+                    } else {
+                        setTimeout(checkI18n, 50);
+                    }
+                };
+                checkI18n();
+            });
         }
-    } else {
-        // No quiz pre-selected, load coaches and show coach selection screen
-        console.log('No quiz parameter found, showing coach selection');
-        const coachesLoaded = await loadCoaches();
-        if (coachesLoaded) {
-            showScreen(coachSelectionScreen);
-            renderCoaches();
+        
+        currentQuestionIndex = 0;
+        userAnswers = [];
+        quizCompleted = false;
+        userPersonalityType = null;
+        
+        // Check if quiz is pre-selected via URL parameter
+        const preSelectedQuizId = getQuizIdFromURL();
+        
+        if (preSelectedQuizId) {
+            // Quiz pre-selected, load quiz directly
+            QUIZ_ID = preSelectedQuizId;
+            console.log('Pre-selected quiz:', preSelectedQuizId, 'Using quiz ID:', QUIZ_ID);
+            const loaded = await loadQuizData();
+            if (loaded) {
+                showScreen(welcomeScreen);
+            }
         } else {
-            // Fallback to welcome screen if coaches fail to load
-            showScreen(welcomeScreen);
+            // No quiz pre-selected, load coaches and show coach selection screen
+            console.log('No quiz parameter found, showing coach selection');
+            const coachesLoaded = await loadCoaches();
+            if (coachesLoaded) {
+                showScreen(coachSelectionScreen);
+                renderCoaches();
+            } else {
+                // Fallback to welcome screen if coaches fail to load
+                showScreen(welcomeScreen);
+            }
         }
+    } catch (error) {
+        console.error('Error initializing quiz:', error);
+        showError('Failed to initialize quiz. Please refresh the page.');
     }
 }
 
@@ -258,9 +277,6 @@ function updateNavigationButtons() {
     // Show/hide back button
     if (currentQuestionIndex > 0) {
         backBtn.style.display = 'inline-block';
-        // Apply translation to back button
-        const backText = window.i18n ? window.i18n.t('quiz.previousQuestion') : '← Back';
-        backBtn.textContent = backText;
     } else {
         backBtn.style.display = 'none';
     }
@@ -268,9 +284,8 @@ function updateNavigationButtons() {
     // Show/hide and enable/disable next button
     if (currentQuestionIndex < quizQuestions.length - 1) {
         nextBtn.style.display = 'inline-block';
-        // Apply translation to next button
-        const nextText = window.i18n ? window.i18n.t('quiz.nextQuestion') : 'Next →';
-        nextBtn.textContent = nextText;
+        // Reset to original data-i18n for next button
+        nextBtn.setAttribute('data-i18n', 'quiz.nextQuestion');
         // Enable next button only if current question is answered
         if (userAnswers[currentQuestionIndex] !== undefined) {
             nextBtn.disabled = false;
@@ -279,15 +294,27 @@ function updateNavigationButtons() {
         }
     } else {
         // Last question - show finish button instead
-        const finishText = window.i18n ? window.i18n.t('quiz.finish_quiz') : 'Finish Quiz';
+        nextBtn.style.display = 'inline-block';
+        // Change data-i18n to finish quiz
+        nextBtn.setAttribute('data-i18n', 'quiz.finish_quiz');
         if (userAnswers[currentQuestionIndex] !== undefined) {
-            nextBtn.style.display = 'inline-block';
-            nextBtn.textContent = finishText;
             nextBtn.disabled = false;
         } else {
-            nextBtn.style.display = 'inline-block';
-            nextBtn.textContent = finishText;
             nextBtn.disabled = true;
+        }
+    }
+    
+    // Apply translations to navigation buttons after updating attributes
+    if (window.i18n && window.i18n.initialized) {
+        // Apply translations to back and next buttons specifically
+        if (currentQuestionIndex > 0) {
+            backBtn.textContent = window.i18n.t('quiz.previousQuestion');
+        }
+        
+        if (currentQuestionIndex < quizQuestions.length - 1) {
+            nextBtn.textContent = window.i18n.t('quiz.nextQuestion');
+        } else {
+            nextBtn.textContent = window.i18n.t('quiz.finish_quiz');
         }
     }
 }

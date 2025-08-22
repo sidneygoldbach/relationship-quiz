@@ -74,6 +74,13 @@ class I18n {
     try {
       // Carregar traduções do banco de dados
       await this.loadTranslationsFromDatabase();
+      
+      // Verificar cada locale individualmente e fazer fallback para JSON se necessário
+      for (const locale of this.supportedLocales) {
+        if (!this.translations[locale] || Object.keys(this.translations[locale]).length === 0) {
+          this.loadTranslationFromFile(locale);
+        }
+      }
     } catch (error) {
       console.error('Error loading translations from database, falling back to JSON files:', error);
       // Fallback para arquivos JSON
@@ -120,16 +127,21 @@ class I18n {
     const localesDir = path.join(__dirname, 'locales');
     
     this.supportedLocales.forEach(locale => {
-      try {
-        const filePath = path.join(localesDir, `${locale}.json`);
-        if (fs.existsSync(filePath)) {
-          const content = fs.readFileSync(filePath, 'utf8');
-          this.translations[locale] = JSON.parse(content);
-        }
-      } catch (error) {
-        console.error(`Error loading translations for ${locale}:`, error);
-      }
+      this.loadTranslationFromFile(locale);
     });
+  }
+
+  loadTranslationFromFile(locale) {
+    const localesDir = path.join(__dirname, 'locales');
+    try {
+      const filePath = path.join(localesDir, `${locale}.json`);
+      if (fs.existsSync(filePath)) {
+        const content = fs.readFileSync(filePath, 'utf8');
+        this.translations[locale] = JSON.parse(content);
+      }
+    } catch (error) {
+      console.error(`Error loading translations for ${locale}:`, error);
+    }
   }
 
   setNestedProperty(obj, path, value) {
