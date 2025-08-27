@@ -853,6 +853,32 @@ const dbHelpers = {
     }
   },
 
+  async getAnswerOptionsByGroupIdAndLocale(optionsGroupId, locale = 'en_US') {
+    try {
+      if (dbType === 'postgresql') {
+        const result = await pool.query(
+          'SELECT * FROM answer_options WHERE options_group_id = $1 AND country = $2 ORDER BY option_order, id',
+          [optionsGroupId, locale]
+        );
+        return result.rows;
+      } else {
+        return new Promise((resolve, reject) => {
+          pool.all(
+            'SELECT * FROM answer_options WHERE options_group_id = ? AND country = ? ORDER BY option_order, id',
+            [optionsGroupId, locale],
+            (err, rows) => {
+              if (err) reject(err);
+              else resolve(rows || []);
+            }
+          );
+        });
+      }
+    } catch (error) {
+      console.error('Error getting answer options by group ID and locale:', error);
+      throw error;
+    }
+  },
+
   // Personality types management functions
   async createPersonalityType(quizId, typeName, typeKey, description) {
     try {
@@ -1018,7 +1044,13 @@ const dbHelpers = {
 
       // Get answer options for each question
       for (let question of questions) {
-        question.options = await dbHelpers.getAnswerOptionsByQuestionIdAndLocale(question.id, locale);
+        // Check if question has options_group_id (for Likert scales)
+        if (question.options_group_id !== null && question.options_group_id !== undefined) {
+          question.options = await dbHelpers.getAnswerOptionsByGroupIdAndLocale(question.options_group_id, locale);
+        } else {
+          // Traditional question-specific options
+          question.options = await dbHelpers.getAnswerOptionsByQuestionIdAndLocale(question.id, locale);
+        }
       }
 
       // Get advice for each personality type

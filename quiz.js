@@ -4,6 +4,9 @@ let quizMetadata = {};
 let personalityTypes = [];
 let QUIZ_ID = 1; // Default quiz ID - Relationship Personality Quiz
 let availableCoaches = []; // Available coaches loaded from API
+let isLikertQuiz = false; // Flag to determine if quiz uses Likert scale
+let questionsPerPage = 1; // Number of questions per page (3 for Likert, 1 for regular)
+let currentPageIndex = 0; // Current page index for Likert quizzes
 
 // Load coaches from API
 async function loadCoaches() {
@@ -43,6 +46,12 @@ async function loadQuizData() {
         const data = await response.json();
         quizQuestions = data.questions;
         quizMetadata = data.quiz;
+        
+        // Check if this is a Likert scale quiz
+        isLikertQuiz = quizMetadata.likert === 'Yes';
+        questionsPerPage = isLikertQuiz ? 3 : 1;
+        
+        console.log('Quiz type:', isLikertQuiz ? 'Likert Scale' : 'Regular', 'Questions per page:', questionsPerPage);
         
         // Load personality types
         const typesResponse = await fetch(`/api/quiz/${QUIZ_ID}/personality-types`, { headers });
@@ -241,6 +250,15 @@ function showScreen(screenToShow) {
 
 // Load a question
 function loadQuestion() {
+    if (isLikertQuiz) {
+        loadLikertQuestions();
+    } else {
+        loadRegularQuestion();
+    }
+}
+
+// Load regular single question
+function loadRegularQuestion() {
     if (currentQuestionIndex < quizQuestions.length) {
         const question = quizQuestions[currentQuestionIndex];
         questionText.textContent = question.question;
@@ -272,8 +290,149 @@ function loadQuestion() {
     }
 }
 
+// Load Likert scale questions (3 per page)
+function loadLikertQuestions() {
+    const startIndex = currentPageIndex * questionsPerPage;
+    const endIndex = Math.min(startIndex + questionsPerPage, quizQuestions.length);
+    
+    if (startIndex < quizQuestions.length) {
+        // Clear previous content
+        optionsContainer.innerHTML = '';
+        
+        // Create Likert scale legend
+        const legend = createLikertLegend();
+        optionsContainer.appendChild(legend);
+        
+        // Create questions container
+        const questionsContainer = document.createElement('div');
+        questionsContainer.className = 'likert-questions-container';
+        
+        // Load questions for current page
+        for (let i = startIndex; i < endIndex; i++) {
+            const question = quizQuestions[i];
+            const questionDiv = createLikertQuestion(question, i);
+            questionsContainer.appendChild(questionDiv);
+        }
+        
+        optionsContainer.appendChild(questionsContainer);
+        
+        // Update progress bar based on pages
+        const totalPages = Math.ceil(quizQuestions.length / questionsPerPage);
+        const progress = ((currentPageIndex + 1) / totalPages) * 100;
+        progressBar.style.width = progress + '%';
+        
+        // Update question text to show page info
+        questionText.textContent = `Página ${currentPageIndex + 1} de ${totalPages}`;
+        
+        // Update navigation buttons
+        updateNavigationButtons();
+    }
+}
+
+// Create Likert scale legend
+function createLikertLegend() {
+    const legend = document.createElement('div');
+    legend.className = 'likert-legend';
+    
+    const legendTitle = document.createElement('div');
+    legendTitle.className = 'likert-legend-title';
+    legendTitle.textContent = 'Escolha o quão precisamente cada afirmação reflete você:';
+    
+    const scaleContainer = document.createElement('div');
+    scaleContainer.className = 'likert-scale-legend';
+    
+    const scaleLabels = [
+        { text: 'Discordo Totalmente', color: '#ff6b6b' },
+        { text: 'Discordo', color: '#ffa726' },
+        { text: 'Neutro', color: '#e0e0e0' },
+        { text: 'Concordo', color: '#66bb6a' },
+        { text: 'Concordo Totalmente', color: '#4caf50' }
+    ];
+    
+    scaleLabels.forEach((label, index) => {
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'likert-legend-item';
+        
+        const circle = document.createElement('div');
+        circle.className = 'likert-legend-circle';
+        circle.style.backgroundColor = label.color;
+        
+        const text = document.createElement('span');
+        text.textContent = label.text;
+        
+        labelDiv.appendChild(circle);
+        labelDiv.appendChild(text);
+        scaleContainer.appendChild(labelDiv);
+    });
+    
+    legend.appendChild(legendTitle);
+    legend.appendChild(scaleContainer);
+    
+    return legend;
+}
+
+// Create individual Likert question
+function createLikertQuestion(question, questionIndex) {
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'likert-question';
+    
+    const questionText = document.createElement('div');
+    questionText.className = 'likert-question-text';
+    questionText.textContent = question.question;
+    
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'likert-options';
+    
+    const scaleColors = ['#ff6b6b', '#ffa726', '#e0e0e0', '#66bb6a', '#4caf50'];
+    
+    // Create 5 Likert scale options
+    for (let i = 0; i < 5; i++) {
+        const optionButton = document.createElement('button');
+        optionButton.className = 'likert-option';
+        optionButton.style.backgroundColor = scaleColors[i];
+        optionButton.onclick = () => selectLikertOption(questionIndex, i);
+        
+        // If this question was already answered, highlight the selected option
+        if (userAnswers[questionIndex] === i) {
+            optionButton.classList.add('selected');
+        }
+        
+        optionsDiv.appendChild(optionButton);
+    }
+    
+    questionDiv.appendChild(questionText);
+    questionDiv.appendChild(optionsDiv);
+    
+    return questionDiv;
+}
+
+// Handle Likert option selection
+function selectLikertOption(questionIndex, optionIndex) {
+    userAnswers[questionIndex] = optionIndex;
+    
+    // Update visual selection
+    const questionDiv = document.querySelectorAll('.likert-question')[questionIndex - (currentPageIndex * questionsPerPage)];
+    const options = questionDiv.querySelectorAll('.likert-option');
+    
+    options.forEach((option, index) => {
+        option.classList.toggle('selected', index === optionIndex);
+    });
+    
+    // Update navigation buttons
+    updateNavigationButtons();
+}
+
 // Update navigation button visibility and state
 function updateNavigationButtons() {
+    if (isLikertQuiz) {
+        updateLikertNavigationButtons();
+    } else {
+        updateRegularNavigationButtons();
+    }
+}
+
+// Update navigation buttons for regular quizzes
+function updateRegularNavigationButtons() {
     // Show/hide back button
     if (currentQuestionIndex > 0) {
         backBtn.style.display = 'inline-block';
@@ -319,6 +478,69 @@ function updateNavigationButtons() {
     }
 }
 
+// Update navigation buttons for Likert quizzes
+function updateLikertNavigationButtons() {
+    const totalPages = Math.ceil(quizQuestions.length / questionsPerPage);
+    
+    // Show/hide back button
+    if (currentPageIndex > 0) {
+        backBtn.style.display = 'inline-block';
+    } else {
+        backBtn.style.display = 'none';
+    }
+    
+    // Show/hide and enable/disable next button
+    if (currentPageIndex < totalPages - 1) {
+        nextBtn.style.display = 'inline-block';
+        nextBtn.setAttribute('data-i18n', 'quiz.nextQuestion');
+        
+        // Check if all questions on current page are answered
+        const startIndex = currentPageIndex * questionsPerPage;
+        const endIndex = Math.min(startIndex + questionsPerPage, quizQuestions.length);
+        let allAnswered = true;
+        
+        for (let i = startIndex; i < endIndex; i++) {
+            if (userAnswers[i] === undefined) {
+                allAnswered = false;
+                break;
+            }
+        }
+        
+        nextBtn.disabled = !allAnswered;
+    } else {
+        // Last page - show finish button instead
+        nextBtn.style.display = 'inline-block';
+        nextBtn.setAttribute('data-i18n', 'quiz.finish_quiz');
+        
+        // Check if all questions on current page are answered
+        const startIndex = currentPageIndex * questionsPerPage;
+        const endIndex = Math.min(startIndex + questionsPerPage, quizQuestions.length);
+        let allAnswered = true;
+        
+        for (let i = startIndex; i < endIndex; i++) {
+            if (userAnswers[i] === undefined) {
+                allAnswered = false;
+                break;
+            }
+        }
+        
+        nextBtn.disabled = !allAnswered;
+    }
+    
+    // Apply translations to navigation buttons
+    if (window.i18n && window.i18n.initialized) {
+        if (currentPageIndex > 0) {
+            backBtn.textContent = window.i18n.t('quiz.previousQuestion');
+        }
+        
+        if (currentPageIndex < totalPages - 1) {
+            nextBtn.textContent = window.i18n.t('quiz.nextQuestion');
+        } else {
+            nextBtn.textContent = window.i18n.t('quiz.finish_quiz');
+        }
+    }
+}
+
 // Handle option selection
 function selectOption(optionIndex) {
     // Store the answer
@@ -352,20 +574,38 @@ function selectOption(optionIndex) {
 
 // Handle back button click
 backBtn.addEventListener('click', () => {
-    if (currentQuestionIndex > 0) {
-        currentQuestionIndex--;
-        loadQuestion();
+    if (isLikertQuiz) {
+        if (currentPageIndex > 0) {
+            currentPageIndex--;
+            loadQuestion();
+        }
+    } else {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            loadQuestion();
+        }
     }
 });
 
 // Handle next button click
 nextBtn.addEventListener('click', () => {
-    if (currentQuestionIndex < quizQuestions.length - 1) {
-        currentQuestionIndex++;
-        loadQuestion();
+    if (isLikertQuiz) {
+        const totalPages = Math.ceil(quizQuestions.length / questionsPerPage);
+        if (currentPageIndex < totalPages - 1) {
+            currentPageIndex++;
+            loadQuestion();
+        } else {
+            // Last page - finish quiz
+            completeQuiz();
+        }
     } else {
-        // Last question - finish quiz
-        completeQuiz();
+        if (currentQuestionIndex < quizQuestions.length - 1) {
+            currentQuestionIndex++;
+            loadQuestion();
+        } else {
+            // Last question - finish quiz
+            completeQuiz();
+        }
     }
 });
 

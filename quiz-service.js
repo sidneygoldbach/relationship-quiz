@@ -193,6 +193,7 @@ class QuizService {
                 description: quizData.quiz.description,
                 price: quizData.quiz.price,
                 currency: quizData.quiz.currency,
+                likert: quizData.quiz.likert,
                 questionCount: quizData.questions.length,
                 personalityTypeCount: quizData.personalityTypes.length
             };
